@@ -17,3 +17,4 @@ Decisions made without stopping for approval (brief §1.3). Newest at the bottom
 | 11 | 2026-11-18 | Added a `milestones` table (About timeline) — not in the brief's table list but required by §6.11. | Timeline must be editable without code. |
 | 12 | 2026-11-18 | DB types are hand-written in `lib/types.ts` instead of `supabase gen types` (no project linked yet). | Regenerate once a project exists; shapes match the migrations. |
 | 13 | 2026-11-18 | Hosting: Vercel project `funded-trader-hub` connected to the GitHub repo; pushes to `main` auto-deploy. | Owner asked for a live link first. |
+| 14 | 2026-11-18 | **Preview mode**: when Supabase env vars are missing, public pages render generated demo data (with the Demo banner) instead of empty states. Set `DEMO_PREVIEW=off` to disable. | Lets the owner review the live site before the database exists. Real data replaces it automatically once Supabase is connected. |

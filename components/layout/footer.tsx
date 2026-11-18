@@ -2,7 +2,8 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { SocialIcon } from "@/components/layout/social-icon";
-import { LEGAL_NAV, PRIMARY_NAV, SECONDARY_NAV, SITE, SOCIALS } from "@/lib/site";
+import { LEGAL_NAV, PRIMARY_NAV, SECONDARY_NAV, SITE, socialLinks } from "@/lib/site";
+import type { Socials } from "@/lib/types";
 
 async function CopyrightYear() {
   "use cache";
@@ -10,8 +11,8 @@ async function CopyrightYear() {
   return <>{new Date().getFullYear()}</>;
 }
 
-export function Footer({ brand, tagline }: { brand: string; tagline: string }) {
-  const socials = SOCIALS.filter((s) => s.url);
+export function Footer({ brand, tagline, socials: socialMap }: { brand: string; tagline: string; socials: Socials }) {
+  const socials = socialLinks(socialMap);
 
   return (
     <footer className="relative mt-24 border-t border-line">

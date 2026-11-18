@@ -1,28 +1,39 @@
 /**
- * Static site defaults. From Phase 2 these are overridden by the `site_settings` row,
+ * Static site defaults. Overridden at runtime by the `site_settings` row,
  * which the owner edits in /admin/settings.
  */
+import type { Socials } from "@/lib/types";
+
+export type SocialId = keyof Socials;
 
 export interface SocialLink {
-  id: "instagram" | "x" | "youtube" | "telegram" | "discord" | "whatsapp";
+  id: SocialId;
   label: string;
   url: string | null;
 }
 
 export const SITE = {
-  /** Placeholder brand name (brief left it blank). Editable in admin from Phase 7. */
+  /** Placeholder brand name (brief left it blank). Editable in admin. */
   brand: "JEETU",
   trader: "JEETU",
   tagline: "LESS IS MORE",
-  description:
-    "Funded prop firm trader. Forex and gold. A public, live record of accounts, trades and payouts.",
+  description: "Funded prop firm trader. Forex and gold. A public, live record of accounts, trades and payouts.",
   markets: ["Forex", "Gold"],
   timeZone: "Asia/Kolkata",
   baseCurrency: "USD" as const,
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://funded-trader-hub.vercel.app",
 };
 
-/** Links with a null url are hidden until set in admin. */
+export const SOCIAL_LABELS: Record<SocialId, string> = {
+  whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  instagram: "Instagram",
+  x: "X",
+  youtube: "YouTube",
+  discord: "Discord",
+};
+
+/** Defaults used until the owner sets links in admin. */
 export const SOCIALS: SocialLink[] = [
   { id: "whatsapp", label: "WhatsApp", url: "https://wa.me/918329896591" },
   { id: "telegram", label: "Telegram", url: null },
@@ -31,6 +42,12 @@ export const SOCIALS: SocialLink[] = [
   { id: "youtube", label: "YouTube", url: null },
   { id: "discord", label: "Discord", url: null },
 ];
+
+export function socialLinks(socials: Socials): SocialLink[] {
+  return (Object.keys(SOCIAL_LABELS) as SocialId[])
+    .map((id) => ({ id, label: SOCIAL_LABELS[id], url: socials[id] || null }))
+    .filter((s) => s.url);
+}
 
 export interface NavItem {
   href: string;

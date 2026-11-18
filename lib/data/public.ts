@@ -23,6 +23,7 @@ import type {
   Trade,
   TradeImage,
 } from "@/lib/types";
+import { buildPreview, previewEnabled, type PreviewData } from "@/lib/demo/preview";
 import { TAGS } from "./tags";
 
 const ACCOUNT_COLS =
@@ -50,6 +51,15 @@ async function all<T>(
     if (error || rows.length < PAGE) break;
   }
   return out;
+}
+
+/** Generated demo data when Supabase is not configured (preview mode). */
+async function preview(): Promise<PreviewData | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(TAGS.demo);
+  if (publicClient() || !previewEnabled()) return null;
+  return buildPreview(new Date());
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -94,7 +104,7 @@ export async function hasDemoData(): Promise<boolean> {
   cacheLife("hours");
   cacheTag(TAGS.demo);
   const sb = publicClient();
-  if (!sb) return false;
+  if (!sb) return (await preview()) !== null;
   const { data, error } = await sb.rpc("site_has_demo_data");
   log("demo", error);
   return data === true;
@@ -105,7 +115,7 @@ export async function getFirms(): Promise<Firm[]> {
   cacheLife("hours");
   cacheTag(TAGS.firms);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.firms ?? [];
   const { data, error } = await sb.from("firms").select("*").order("sort_order").order("name");
   log("firms", error);
   return (data ?? []) as Firm[];
@@ -116,7 +126,7 @@ export async function getAccounts(): Promise<Account[]> {
   cacheLife("minutes");
   cacheTag(TAGS.accounts);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.accounts ?? [];
   const { data, error } = await sb.from("accounts").select(ACCOUNT_COLS).order("sort_order").order("start_date", { ascending: false });
   log("accounts", error);
   return (data ?? []) as unknown as Account[];
@@ -127,7 +137,7 @@ export async function getSnapshots(): Promise<Snapshot[]> {
   cacheLife("minutes");
   cacheTag(TAGS.snapshots);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.snapshots ?? [];
   return all<Snapshot>("snapshots", (f, t) => sb.from("account_snapshots").select("*").order("date").range(f, t));
 }
 
@@ -136,7 +146,7 @@ export async function getPhaseHistory(): Promise<PhaseHistory[]> {
   cacheLife("minutes");
   cacheTag(TAGS.accounts);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.phaseHistory ?? [];
   const { data, error } = await sb.from("account_phase_history").select("*").order("changed_at");
   log("phase history", error);
   return (data ?? []) as PhaseHistory[];
@@ -158,7 +168,7 @@ export async function getTrades(): Promise<Trade[]> {
   cacheLife("minutes");
   cacheTag(TAGS.trades);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.trades ?? [];
   return all<Trade>("trades", (f, t) =>
     sb.from("trades").select(TRADE_COLS).order("opened_at", { ascending: false }).range(f, t),
   );
@@ -169,7 +179,11 @@ export async function getTrade(id: string): Promise<{ trade: Trade; images: Trad
   cacheLife("minutes");
   cacheTag(TAGS.trades, `trade:${id}`);
   const sb = publicClient();
-  if (!sb || !/^[0-9a-f-]{36}$/i.test(id)) return null;
+  if (!sb) {
+    const t = (await preview())?.trades.find((x) => x.id === id);
+    return t ? { trade: t, images: [] } : null;
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const [{ data, error }, imgs] = await Promise.all([
     sb.from("trades").select(TRADE_COLS).eq("id", id).maybeSingle(),
     sb.from("trade_images").select("*").eq("trade_id", id).order("sort_order"),
@@ -185,7 +199,7 @@ export async function getPayouts(): Promise<Payout[]> {
   cacheLife("hours");
   cacheTag(TAGS.payouts);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.payouts ?? [];
   const { data, error } = await sb.from("payouts").select("*").order("paid_on", { ascending: false });
   log("payouts", error);
   return (data ?? []) as Payout[];
@@ -196,7 +210,7 @@ export async function getStrategies(): Promise<Strategy[]> {
   cacheLife("hours");
   cacheTag(TAGS.strategies);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.strategies ?? [];
   const { data, error } = await sb.from("strategies").select("*").order("sort_order").order("name");
   log("strategies", error);
   return (data ?? []) as Strategy[];
@@ -207,7 +221,7 @@ export async function getJournalEntries(): Promise<JournalEntry[]> {
   cacheLife("minutes");
   cacheTag(TAGS.journal);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.journal ?? [];
   return all<JournalEntry>("journal", (f, t) =>
     sb.from("journal_entries").select("*").order("date", { ascending: false }).range(f, t),
   );
@@ -218,7 +232,7 @@ export async function getToolkit(): Promise<ToolkitItem[]> {
   cacheLife("hours");
   cacheTag(TAGS.toolkit);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.toolkit ?? [];
   const { data, error } = await sb.from("toolkit_items").select("*").order("sort_order").order("name");
   log("toolkit", error);
   return (data ?? []) as ToolkitItem[];
@@ -229,7 +243,7 @@ export async function getGoals(): Promise<Goal[]> {
   cacheLife("hours");
   cacheTag(TAGS.goals);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.goals ?? [];
   const { data, error } = await sb.from("goals").select("*").order("sort_order").order("deadline");
   log("goals", error);
   return (data ?? []) as Goal[];
@@ -240,7 +254,7 @@ export async function getPosts(): Promise<Post[]> {
   cacheLife("hours");
   cacheTag(TAGS.posts);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.posts ?? [];
   const { data, error } = await sb.from("posts").select("*").order("published_at", { ascending: false });
   log("posts", error);
   return (data ?? []) as Post[];
@@ -251,7 +265,7 @@ export async function getMilestones(): Promise<Milestone[]> {
   cacheLife("hours");
   cacheTag(TAGS.milestones);
   const sb = publicClient();
-  if (!sb) return [];
+  if (!sb) return (await preview())?.milestones ?? [];
   const { data, error } = await sb.from("milestones").select("*").order("date");
   log("milestones", error);
   return (data ?? []) as Milestone[];

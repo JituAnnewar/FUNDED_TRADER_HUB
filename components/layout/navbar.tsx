@@ -16,8 +16,18 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Navbar with active-link state. Needs <Suspense> on dynamic routes (usePathname). */
 export function Navbar({ brand }: { brand: string }) {
   const pathname = usePathname();
+  return <NavbarView brand={brand} pathname={pathname} />;
+}
+
+/** Same markup without the active state, used as the Suspense fallback. */
+export function NavbarFallback({ brand }: { brand: string }) {
+  return <NavbarView brand={brand} pathname="" />;
+}
+
+function NavbarView({ brand, pathname }: { brand: string; pathname: string }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
