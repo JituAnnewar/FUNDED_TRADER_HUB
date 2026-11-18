@@ -23,8 +23,8 @@ Full brief: `docs/BRIEF.md`.
 - [x] **Phase 4** — 3D hero scene, motion system, performance guardrails
 - [x] **Phase 5** — Public: Home, Performance, Accounts, Payouts
 - [x] **Phase 6** — Public: Firms, Journal, Strategies, Toolkit, Tools (calculators + Monte Carlo), About, Insights, Contact, Legal, 404
-- [ ] **Phase 7** — Admin: auth, layout, overview, end-of-day update, Firms, Accounts, Open positions
-- [ ] **Phase 8** — Admin: Trades, CSV import, ingest endpoint, Payouts, Strategies, Journal, Toolkit, Goals, Posts, Messages, Settings, Data export, command palette, PWA
+- [x] **Phase 7** — Admin: auth, layout, overview, end-of-day update, Firms, Accounts, Open positions
+- [x] **Phase 8** — Admin: Trades, CSV import, ingest endpoint, Payouts, Strategies, Journal, Toolkit, Goals, Posts, Messages, Settings, Data export, command palette, PWA
 - [ ] **Phase 9** — Realtime, OG images, share cards, SEO, accessibility pass, Lighthouse pass
 - [ ] **Phase 10** — Docs (SETUP.md, ADMIN_GUIDE.md, README.md) + final QA
 

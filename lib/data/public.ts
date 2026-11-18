@@ -87,7 +87,11 @@ export async function getSettings(): Promise<SiteSettings> {
   cacheTag(TAGS.settings);
   const sb = publicClient();
   if (!sb) return DEFAULT_SETTINGS;
-  const { data, error } = await sb.from("site_settings").select("*").limit(1).maybeSingle();
+  const { data, error } = await sb
+    .from("site_settings")
+    .select("id,updated_at,brand_name,trader_name,tagline,hero_copy,about_text,avatar_url,socials,sections,show_open_positions_publicly,usd_to_inr_rate,disclaimer_text,seo_title,seo_description,show_tradingview_widgets")
+    .limit(1)
+    .maybeSingle();
   log("settings", error);
   if (!data) return DEFAULT_SETTINGS;
   const row = data as SiteSettings;
