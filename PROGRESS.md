@@ -16,8 +16,10 @@ Full brief: `docs/BRIEF.md`.
   - [x] Branded loader (skipped on repeat visits and under reduced motion)
   - [x] Placeholder routes for every public page (no dead links), themed 404 + error page
   - [x] `.env.example`
-- [ ] **Phase 2** — Supabase schema, migrations, RLS, storage buckets, generated types, seed script
-- [ ] **Phase 3** — Analytics engine + unit tests
+- [x] **Phase 2** — Supabase schema, migrations, RLS, storage buckets, types, seed script
+  - [x] `supabase/migrations` (schema + security). Types in `lib/types.ts` (hand-written, mirrors schema)
+  - [x] Demo generator `lib/demo` + `npm run seed` (+ `--reset`)
+- [x] **Phase 3** — Analytics engine + unit tests (`lib/analytics`: trades, rules, dates, portfolio)
 - [ ] **Phase 4** — 3D hero scene, motion system, performance guardrails
 - [ ] **Phase 5** — Public: Home, Performance, Accounts, Payouts
 - [ ] **Phase 6** — Public: Firms, Journal, Strategies, Toolkit, Tools (calculators + Monte Carlo), About, Insights, Contact, Legal, 404
