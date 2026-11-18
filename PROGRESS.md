@@ -20,9 +20,9 @@ Full brief: `docs/BRIEF.md`.
   - [x] `supabase/migrations` (schema + security). Types in `lib/types.ts` (hand-written, mirrors schema)
   - [x] Demo generator `lib/demo` + `npm run seed` (+ `--reset`)
 - [x] **Phase 3** — Analytics engine + unit tests (`lib/analytics`: trades, rules, dates, portfolio)
-- [ ] **Phase 4** — 3D hero scene, motion system, performance guardrails
-- [ ] **Phase 5** — Public: Home, Performance, Accounts, Payouts
-- [ ] **Phase 6** — Public: Firms, Journal, Strategies, Toolkit, Tools (calculators + Monte Carlo), About, Insights, Contact, Legal, 404
+- [x] **Phase 4** — 3D hero scene, motion system, performance guardrails
+- [x] **Phase 5** — Public: Home, Performance, Accounts, Payouts
+- [x] **Phase 6** — Public: Firms, Journal, Strategies, Toolkit, Tools (calculators + Monte Carlo), About, Insights, Contact, Legal, 404
 - [ ] **Phase 7** — Admin: auth, layout, overview, end-of-day update, Firms, Accounts, Open positions
 - [ ] **Phase 8** — Admin: Trades, CSV import, ingest endpoint, Payouts, Strategies, Journal, Toolkit, Goals, Posts, Messages, Settings, Data export, command palette, PWA
 - [ ] **Phase 9** — Realtime, OG images, share cards, SEO, accessibility pass, Lighthouse pass
@@ -36,4 +36,4 @@ _Nothing yet._
 
 - Node.js v26 LTS is a portable install at ~/.local/node-v26.13.1-win-x64 (no admin rights). Prefix commands with `export PATH="$HOME/.local/node-v26.13.1-win-x64:$PATH"`.
 - Next.js 16.4: Cache Components on. Use `"use cache"` + `cacheLife` + `cacheTag` for public reads; `proxy.ts` replaces middleware; request-time values need `<Suspense>`.
-- `SectionPending` placeholder is used on public pages not built yet; remove all usages by end of Phase 6.
+- Public site complete (Phases 4–6). Preview mode shows demo data until Supabase env vars are set (DECISIONS #14).
