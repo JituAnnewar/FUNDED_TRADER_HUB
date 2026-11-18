@@ -1,47 +1,45 @@
 "use client";
 
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
-/** 3D tilt on hover with a moving glare. Disabled for touch and reduced motion. */
+/**
+ * 3D tilt on hover with a moving glare. Pure CSS variables updated on pointer move (no animation library).
+ * Mouse only; disabled under reduced motion via CSS.
+ */
 export function TiltCard({ children, className, max = 8 }: { children: React.ReactNode; className?: string; max?: number }) {
-  const reduce = useReducedMotion();
-  const rx = useSpring(0, { stiffness: 200, damping: 20 });
-  const ry = useSpring(0, { stiffness: 200, damping: 20 });
-  const gx = useMotionValue(50);
-  const gy = useMotionValue(50);
-  const glare = useMotionTemplate`radial-gradient(circle at ${gx}% ${gy}%, rgb(255 255 255 / 0.12), transparent 55%)`;
+  const ref = useRef<HTMLDivElement>(null);
+  const frame = useRef(0);
 
   function onMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (reduce || e.pointerType !== "mouse") return;
-    const r = e.currentTarget.getBoundingClientRect();
+    if (e.pointerType !== "mouse") return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width;
     const py = (e.clientY - r.top) / r.height;
-    ry.set((px - 0.5) * max * 2);
-    rx.set(-(py - 0.5) * max * 2);
-    gx.set(px * 100);
-    gy.set(py * 100);
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      el.style.setProperty("--rx", `${(-(py - 0.5) * max * 2).toFixed(2)}deg`);
+      el.style.setProperty("--ry", `${((px - 0.5) * max * 2).toFixed(2)}deg`);
+      el.style.setProperty("--gx", `${(px * 100).toFixed(1)}%`);
+      el.style.setProperty("--gy", `${(py * 100).toFixed(1)}%`);
+    });
   }
   function onLeave() {
-    rx.set(0);
-    ry.set(0);
+    const el = ref.current;
+    if (!el) return;
+    cancelAnimationFrame(frame.current);
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
   }
 
   return (
     <div style={{ perspective: 900 }} className={cn("h-full", className)}>
-      <motion.div
-        onPointerMove={onMove}
-        onPointerLeave={onLeave}
-        style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
-        className="relative h-full"
-      >
+      <div ref={ref} onPointerMove={onMove} onPointerLeave={onLeave} className="tilt group/tilt relative h-full">
         {children}
-        <motion.div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[1rem] opacity-0 transition-opacity duration-300 [div:hover>&]:opacity-100"
-          style={{ backgroundImage: glare }}
-        />
-      </motion.div>
+        <div aria-hidden="true" className="tilt-glare pointer-events-none absolute inset-0 rounded-[1rem] opacity-0 transition-opacity duration-300 group-hover/tilt:opacity-100" />
+      </div>
     </div>
   );
 }

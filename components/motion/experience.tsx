@@ -1,6 +1,5 @@
 "use client";
 
-import Lenis from "lenis";
 import { useEffect, useRef } from "react";
 
 /**
@@ -18,16 +17,23 @@ export function Experience() {
     const cleanups: (() => void)[] = [];
 
     if (!reduce && fine) {
-      const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+      let stopped = false;
       let raf = 0;
-      const loop = (t: number) => {
-        lenis.raf(t);
+      let destroy: (() => void) | null = null;
+      void import("lenis").then(({ default: Lenis }) => {
+        if (stopped) return;
+        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        const loop = (t: number) => {
+          lenis.raf(t);
+          raf = requestAnimationFrame(loop);
+        };
         raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
+        destroy = () => lenis.destroy();
+      });
       cleanups.push(() => {
+        stopped = true;
         cancelAnimationFrame(raf);
-        lenis.destroy();
+        destroy?.();
       });
     }
 

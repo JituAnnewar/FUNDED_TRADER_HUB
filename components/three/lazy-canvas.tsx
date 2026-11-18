@@ -30,14 +30,35 @@ function useSceneGate() {
     }
     if (reduce || !webgl) return;
     const nav = navigator as Navigator & { deviceMemory?: number };
-    const low = window.matchMedia("(max-width: 767px)").matches || (nav.deviceMemory ?? 8) <= 4 || (navigator.hardwareConcurrency ?? 8) <= 4;
-    // Defer until the browser is idle so the 3D bundle never competes with first paint.
-    const idle = (cb: () => void) =>
-      "requestIdleCallback" in window ? window.requestIdleCallback(cb, { timeout: 1500 }) : globalThis.setTimeout(cb, 600);
-    idle(() => {
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const low = coarse || window.matchMedia("(max-width: 767px)").matches || (nav.deviceMemory ?? 8) <= 4 || (navigator.hardwareConcurrency ?? 8) <= 4;
+    let done = false;
+    const start = () => {
+      if (done) return;
+      done = true;
+      cleanup();
       setLowPower(low);
       setEnabled(true);
-    });
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "wheel"] as const;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    function cleanup() {
+      events.forEach((e) => window.removeEventListener(e, start));
+      if (timer) clearTimeout(timer);
+      if (idleId !== undefined && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
+    }
+    if (low) {
+      // Phones / low-power devices: the 3D bundle waits for the first interaction or 6 s after load,
+      // so it never competes with first paint and interactivity. The static poster shows meanwhile.
+      events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
+      timer = setTimeout(start, 6000);
+    } else if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(start, { timeout: 1500 });
+    } else {
+      timer = setTimeout(start, 600);
+    }
+    return cleanup;
   }, []);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { AreaSeries, ColorType, createChart, LineSeries, type IChartApi, type UTCTimestamp } from "lightweight-charts";
+import type { IChartApi, UTCTimestamp } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -42,47 +42,68 @@ export function EquityChart({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const chart: IChartApi = createChart(el, {
-      height,
-      autoSize: true,
-      layout: {
-        background: { type: ColorType.Solid, color: "transparent" },
-        textColor: "#8A96A8",
-        fontFamily: "var(--font-jetbrains-mono), monospace",
-        fontSize: 11,
-        attributionLogo: false,
+    let chart: IChartApi | null = null;
+    let cancelled = false;
+    // The chart library is loaded only when the chart is near the viewport.
+    const io = new IntersectionObserver(
+      async ([entry]) => {
+        if (!entry?.isIntersecting || chart || cancelled) return;
+        io.disconnect();
+        const lc = await import("lightweight-charts");
+        if (cancelled) return;
+        chart = build(lc, el);
       },
-      grid: {
-        vertLines: { color: "rgba(255,255,255,0.04)" },
-        horzLines: { color: "rgba(255,255,255,0.04)" },
-      },
-      rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
-      timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: false },
-      crosshair: {
-        vertLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
-        horzLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
-      },
-      localization: { priceFormatter: (v: number) => `${valuePrefix}${formatMoney(v, { decimals: 0 })}` },
-      handleScroll: { vertTouchDrag: false },
-    });
-    series.forEach((s, i) => {
-      const data = toData(s.points);
-      if (i === 0) {
-        const area = chart.addSeries(AreaSeries, {
-          lineColor: s.color,
-          topColor: `${s.color}55`,
-          bottomColor: `${s.color}00`,
-          lineWidth: 2,
-          priceLineVisible: false,
-        });
-        area.setData(data);
-      } else {
-        const line = chart.addSeries(LineSeries, { color: s.color, lineWidth: 2, priceLineVisible: false });
-        line.setData(data);
-      }
-    });
-    chart.timeScale().fitContent();
-    return () => chart.remove();
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    function build(lc: typeof import("lightweight-charts"), el: HTMLDivElement): IChartApi {
+      const chart: IChartApi = lc.createChart(el, {
+        height,
+        autoSize: true,
+        layout: {
+          background: { type: lc.ColorType.Solid, color: "transparent" },
+          textColor: "#8A96A8",
+          fontFamily: "var(--font-jetbrains-mono), monospace",
+          fontSize: 11,
+          attributionLogo: false,
+        },
+        grid: {
+          vertLines: { color: "rgba(255,255,255,0.04)" },
+          horzLines: { color: "rgba(255,255,255,0.04)" },
+        },
+        rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
+        timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: false },
+        crosshair: {
+          vertLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
+          horzLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
+        },
+        localization: { priceFormatter: (v: number) => `${valuePrefix}${formatMoney(v, { decimals: 0 })}` },
+        handleScroll: { vertTouchDrag: false },
+      });
+      series.forEach((s, i) => {
+        const data = toData(s.points);
+        if (i === 0) {
+          const area = chart.addSeries(lc.AreaSeries, {
+            lineColor: s.color,
+            topColor: `${s.color}55`,
+            bottomColor: `${s.color}00`,
+            lineWidth: 2,
+            priceLineVisible: false,
+          });
+          area.setData(data);
+        } else {
+          const line = chart.addSeries(lc.LineSeries, { color: s.color, lineWidth: 2, priceLineVisible: false });
+          line.setData(data);
+        }
+      });
+      chart.timeScale().fitContent();
+      return chart;
+    }
+    return () => {
+      cancelled = true;
+      io.disconnect();
+      chart?.remove();
+    };
   }, [series, height, valuePrefix]);
 
   const first = series[0]?.points ?? [];
