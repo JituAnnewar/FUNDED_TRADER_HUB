@@ -13,10 +13,15 @@ import type { DrawdownType, Firm } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Firms",
-  description: "The prop firms I trade with, their rules side by side, my accounts and payouts at each, and an honest review.",
+  description:
+    "The prop firms I trade with, their rules side by side, my accounts and payouts at each, and an honest review.",
 };
 
-const DD: Record<DrawdownType, string> = { static: "Static", trailing_eod: "Trailing (end of day)", trailing_intraday: "Trailing (intraday)" };
+const DD: Record<DrawdownType, string> = {
+  static: "Static",
+  trailing_eod: "Trailing (end of day)",
+  trailing_intraday: "Trailing (intraday)",
+};
 const pct = (v: number | null) => (v === null ? "—" : `${v}%`);
 
 const ROWS: { label: string; get: (f: Firm) => string }[] = [
@@ -36,14 +41,21 @@ export default async function FirmsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Where I trade" title="Firms" description="Rules summarised from each firm's current terms at the time of writing. Always check the firm's own website before you buy a challenge." />
+      <PageHeader
+        eyebrow="Where I trade"
+        title="Firms"
+        description="Rules summarised from each firm's current terms at the time of writing. Always check the firm's own website before you buy a challenge."
+      />
       {firms.length === 0 ? (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <EmptyState title="No firms listed yet" body="The prop firms I trade with will be listed here with their rules and my review." />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <EmptyState
+            title="No firms listed yet"
+            body="The prop firms I trade with will be listed here with their rules and my review."
+          />
         </div>
       ) : (
         <>
-          <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6">
+          <div className="mx-auto max-w-6xl space-y-4 px-4 sm:px-6">
             {firms.map((f, i) => {
               const accs = views.filter((v) => v.account.firm_id === f.id);
               const paid = payouts.filter((p) => p.firm_id === f.id);
@@ -57,31 +69,45 @@ export default async function FirmsPage() {
                         <div>
                           <h2 className="text-xl font-semibold">{f.name}</h2>
                           {f.website && (
-                            <a href={f.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
+                            <a
+                              href={f.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-accent inline-flex items-center gap-1 text-xs hover:underline"
+                            >
                               Website <ExternalLink className="size-3" aria-hidden="true" />
                             </a>
                           )}
                         </div>
                       </div>
-                      {f.description && <p className="mt-4 text-sm leading-relaxed text-muted">{f.description}</p>}
+                      {f.description && <p className="text-muted mt-4 text-sm leading-relaxed">{f.description}</p>}
                       <dl className="mt-5 grid grid-cols-3 gap-3 text-sm">
                         <div>
-                          <dt className="text-xs text-muted">Accounts</dt>
+                          <dt className="text-muted text-xs">Accounts</dt>
                           <dd className="num text-lg">{accs.length}</dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted">Capital</dt>
-                          <dd className="num text-lg">{formatMoney(accs.filter((v) => v.isActive).reduce((s, v) => s + v.account.account_size, 0), { compact: true })}</dd>
+                          <dt className="text-muted text-xs">Capital</dt>
+                          <dd className="num text-lg">
+                            {formatMoney(
+                              accs.filter((v) => v.isActive).reduce((s, v) => s + v.account.account_size, 0),
+                              { compact: true },
+                            )}
+                          </dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted">Paid out</dt>
-                          <dd className="num text-lg text-gold">{formatMoney(paidTotal, { compact: true })}</dd>
+                          <dt className="text-muted text-xs">Paid out</dt>
+                          <dd className="num text-gold text-lg">{formatMoney(paidTotal, { compact: true })}</dd>
                         </div>
                       </dl>
                     </div>
                     <div>
-                      <h3 className="mb-2 text-xs tracking-[0.16em] text-muted uppercase">My review</h3>
-                      {f.personal_review ? <Markdown>{f.personal_review}</Markdown> : <p className="text-sm text-muted">No review written yet.</p>}
+                      <h3 className="text-muted mb-2 text-xs tracking-[0.16em] uppercase">My review</h3>
+                      {f.personal_review ? (
+                        <Markdown>{f.personal_review}</Markdown>
+                      ) : (
+                        <p className="text-muted text-sm">No review written yet.</p>
+                      )}
                     </div>
                   </GlassPanel>
                 </Reveal>
@@ -91,12 +117,15 @@ export default async function FirmsPage() {
           </div>
 
           <Section id="compare" title="Rules side by side">
-            <div className="overflow-x-auto rounded-2xl border border-line">
+            <div className="border-line overflow-x-auto rounded-2xl border">
               <table className="w-full min-w-[560px] text-sm">
                 <caption className="sr-only">Prop firm rules comparison</caption>
                 <thead className="bg-white/[0.02]">
                   <tr>
-                    <th scope="col" className="sticky left-0 bg-surface px-4 py-3 text-left text-[11px] font-medium tracking-[0.12em] text-muted uppercase">
+                    <th
+                      scope="col"
+                      className="bg-surface text-muted sticky left-0 px-4 py-3 text-left text-[11px] font-medium tracking-[0.12em] uppercase"
+                    >
                       Rule
                     </th>
                     {firms.map((f) => (
@@ -108,8 +137,8 @@ export default async function FirmsPage() {
                 </thead>
                 <tbody>
                   {ROWS.map((r) => (
-                    <tr key={r.label} className="border-t border-line">
-                      <th scope="row" className="sticky left-0 bg-surface px-4 py-2.5 text-left font-normal text-muted">
+                    <tr key={r.label} className="border-line border-t">
+                      <th scope="row" className="bg-surface text-muted sticky left-0 px-4 py-2.5 text-left font-normal">
                         {r.label}
                       </th>
                       {firms.map((f) => (

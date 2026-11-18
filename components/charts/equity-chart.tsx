@@ -62,7 +62,7 @@ export function EquityChart({
         autoSize: true,
         layout: {
           background: { type: lc.ColorType.Solid, color: "transparent" },
-          textColor: "#8A96A8",
+          textColor: "#8F94BD",
           fontFamily: "var(--font-jetbrains-mono), monospace",
           fontSize: 11,
           attributionLogo: false,
@@ -74,8 +74,8 @@ export function EquityChart({
         rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
         timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: false },
         crosshair: {
-          vertLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
-          horzLine: { color: "rgba(41,212,255,0.4)", labelBackgroundColor: "#111823" },
+          vertLine: { color: "rgba(34,211,238,0.4)", labelBackgroundColor: "#12163A" },
+          horzLine: { color: "rgba(34,211,238,0.4)", labelBackgroundColor: "#12163A" },
         },
         localization: { priceFormatter: (v: number) => `${valuePrefix}${formatMoney(v, { decimals: 0 })}` },
         handleScroll: { vertTouchDrag: false },
@@ -110,13 +110,18 @@ export function EquityChart({
   const last = first[first.length - 1];
   return (
     <figure className={cn("w-full", className)}>
-      <div ref={ref} style={{ height }} role="img" aria-label={`${label}. ${last ? `Latest value ${formatMoney(last.value)}.` : "No data."}`} />
-      <details className="mt-2 text-xs text-muted">
-        <summary className="cursor-pointer select-none hover:text-fg">Show data as a table</summary>
-        <div className="mt-2 max-h-56 overflow-auto rounded-lg border border-line">
+      <div
+        ref={ref}
+        style={{ height }}
+        role="img"
+        aria-label={`${label}. ${last ? `Latest value ${formatMoney(last.value)}.` : "No data."}`}
+      />
+      <details className="text-muted mt-2 text-xs">
+        <summary className="hover:text-fg cursor-pointer select-none">Show data as a table</summary>
+        <div className="border-line mt-2 max-h-56 overflow-auto rounded-lg border">
           <table className="w-full text-left">
             <caption className="sr-only">{label}</caption>
-            <thead className="sticky top-0 bg-surface">
+            <thead className="bg-surface sticky top-0">
               <tr>
                 <th className="px-3 py-1.5 font-medium">Series</th>
                 <th className="px-3 py-1.5 font-medium">Date</th>
@@ -126,7 +131,7 @@ export function EquityChart({
             <tbody>
               {series.flatMap((s) =>
                 s.points.slice(-60).map((p, i) => (
-                  <tr key={`${s.name}-${i}`} className="border-t border-line">
+                  <tr key={`${s.name}-${i}`} className="border-line border-t">
                     <td className="px-3 py-1">{s.name}</td>
                     <td className="num px-3 py-1">{p.time.slice(0, 10)}</td>
                     <td className="num px-3 py-1 text-right">{formatMoney(p.value)}</td>

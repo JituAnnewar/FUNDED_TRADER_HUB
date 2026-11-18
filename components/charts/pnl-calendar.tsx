@@ -19,7 +19,20 @@ export interface CalendarJournal {
   lessons: string | null;
 }
 
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /** Month-view P&L heatmap. Clicking a day shows its trades and journal entry. */
@@ -65,33 +78,57 @@ export function PnlCalendar({
           <h3 className="font-display text-lg font-semibold">
             {MONTHS[m - 1]} {y}
           </h3>
-          <p className="text-xs text-muted">
-            Month total <span className={cn("num", monthTotal > 0 ? "text-profit" : monthTotal < 0 ? "text-loss" : "")}>{formatPnl(monthTotal)}</span>
+          <p className="text-muted text-xs">
+            Month total{" "}
+            <span className={cn("num", monthTotal > 0 ? "text-profit" : monthTotal < 0 ? "text-loss" : "")}>
+              {formatPnl(monthTotal)}
+            </span>
           </p>
         </div>
         <div className="flex gap-1">
-          <button type="button" onClick={() => shift(-1)} className="grid size-9 place-items-center rounded-lg border border-line hover:bg-white/5" aria-label="Previous month">
+          <button
+            type="button"
+            onClick={() => shift(-1)}
+            className="border-line grid size-9 place-items-center rounded-lg border hover:bg-white/5"
+            aria-label="Previous month"
+          >
             <ChevronLeft className="size-4" aria-hidden="true" />
           </button>
-          <button type="button" onClick={() => shift(1)} className="grid size-9 place-items-center rounded-lg border border-line hover:bg-white/5" aria-label="Next month">
+          <button
+            type="button"
+            onClick={() => shift(1)}
+            className="border-line grid size-9 place-items-center rounded-lg border hover:bg-white/5"
+            aria-label="Next month"
+          >
             <ChevronRight className="size-4" aria-hidden="true" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-[10px] tracking-wider text-muted uppercase sm:gap-1.5" aria-hidden="true">
+      <div
+        className="text-muted grid grid-cols-7 gap-1 text-center text-[10px] tracking-wider uppercase sm:gap-1.5"
+        aria-hidden="true"
+      >
         {DOW.map((d) => (
           <div key={d} className="pb-1">
             {d}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5" role="group" aria-label={`P&L calendar for ${MONTHS[m - 1]} ${y}`}>
+      <div
+        className="grid grid-cols-7 gap-1 sm:gap-1.5"
+        role="group"
+        aria-label={`P&L calendar for ${MONTHS[m - 1]} ${y}`}
+      >
         {cells.map((c, i) => {
           if (!c) return <div key={`e${i}`} aria-hidden="true" />;
           const d = byDay.get(c);
           const intensity = d ? 0.15 + (Math.abs(d.pnl) / max) * 0.6 : 0;
-          const bg = d ? (d.pnl >= 0 ? `rgb(22 242 160 / ${intensity})` : `rgb(255 61 110 / ${intensity})`) : undefined;
+          const bg = d
+            ? d.pnl >= 0
+              ? `rgb(52 211 153 / ${intensity})`
+              : `rgb(248 113 113 / ${intensity})`
+            : undefined;
           return (
             <button
               key={c}
@@ -106,37 +143,48 @@ export function PnlCalendar({
               )}
               style={bg ? { backgroundColor: bg } : undefined}
             >
-              <span className="num text-[10px] text-muted">{Number(c.slice(8))}</span>
-              {d && <span className="num hidden text-[10px] leading-none text-fg sm:block">{formatPnl(d.pnl, { compact: true })}</span>}
+              <span className="num text-muted text-[10px]">{Number(c.slice(8))}</span>
+              {d && (
+                <span className="num text-fg hidden text-[10px] leading-none sm:block">
+                  {formatPnl(d.pnl, { compact: true })}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
       {selected && (
-        <div className="mt-4 rounded-xl border border-line bg-white/[0.02] p-4" aria-live="polite">
+        <div className="border-line mt-4 rounded-xl border bg-white/[0.02] p-4" aria-live="polite">
           <h4 className="num mb-2 text-sm font-medium">{selected}</h4>
           {selTrades.length ? (
-            <ul className="divide-y divide-line text-sm">
+            <ul className="divide-line divide-y text-sm">
               {selTrades.map((t) => (
                 <li key={t.id}>
-                  <Link href={`/journal/${t.id}`} className="flex items-center justify-between gap-3 py-2 hover:text-accent">
+                  <Link
+                    href={`/journal/${t.id}`}
+                    className="hover:text-accent flex items-center justify-between gap-3 py-2"
+                  >
                     <span>
                       {t.symbol} <span className="text-muted">· {t.direction}</span>
                     </span>
-                    <span className={cn("num", t.net_pnl > 0 ? "text-profit" : t.net_pnl < 0 ? "text-loss" : "text-muted")}>{formatPnl(t.net_pnl)}</span>
+                    <span
+                      className={cn("num", t.net_pnl > 0 ? "text-profit" : t.net_pnl < 0 ? "text-loss" : "text-muted")}
+                    >
+                      {formatPnl(t.net_pnl)}
+                    </span>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted">No public trades on this day.</p>
+            <p className="text-muted text-sm">No public trades on this day.</p>
           )}
           {selJournal && (
-            <div className="mt-3 border-t border-line pt-3 text-sm">
-              <p className="mb-1 text-xs tracking-wider text-muted uppercase">Journal</p>
+            <div className="border-line mt-3 border-t pt-3 text-sm">
+              <p className="text-muted mb-1 text-xs tracking-wider uppercase">Journal</p>
               {selJournal.post_market_review && <p className="text-fg/90">{selJournal.post_market_review}</p>}
-              {selJournal.lessons && <p className="mt-1 text-muted">Lesson: {selJournal.lessons}</p>}
+              {selJournal.lessons && <p className="text-muted mt-1">Lesson: {selJournal.lessons}</p>}
             </div>
           )}
         </div>

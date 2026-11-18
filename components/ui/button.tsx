@@ -9,11 +9,11 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-accent text-bg shadow-[0_0_0_1px_rgb(41_212_255/0.4),0_8px_30px_-8px_rgb(41_212_255/0.6)] hover:shadow-[0_0_0_1px_rgb(41_212_255/0.7),0_10px_40px_-6px_rgb(41_212_255/0.8)] hover:brightness-110",
+          "bg-[image:var(--grad-button)] text-white shadow-[0_10px_30px_-10px_rgb(124_92_255/0.9),inset_0_1px_0_rgb(255_255_255/0.25)] hover:brightness-110 hover:shadow-[0_14px_40px_-10px_rgb(34_211_238/0.7),inset_0_1px_0_rgb(255_255_255/0.3)]",
         secondary:
-          "border border-line-strong bg-white/[0.03] text-fg hover:bg-white/[0.07] hover:border-white/25",
+          "border border-line-strong bg-white/[0.04] text-fg backdrop-blur-md hover:bg-white/[0.08] hover:border-violet-soft/40",
         ghost: "text-muted hover:text-fg hover:bg-white/[0.05]",
-        gold: "bg-gold text-bg shadow-[0_8px_30px_-8px_rgb(245_196_81/0.6)] hover:brightness-110",
+        gold: "bg-gold text-bg shadow-[0_8px_30px_-8px_rgb(251_191_36/0.6)] hover:brightness-110",
       },
       size: {
         sm: "h-9 px-3 text-sm",

@@ -1,21 +1,26 @@
 @import "tailwindcss";
 
-/* ───────────────────────── Design tokens ───────────────────────── */
+/* ───────────────────────── Design tokens: "Midnight & electric" ───────────────────────── */
 :root {
-  --c-bg: #05070a;
-  --c-surface: #0b1016;
-  --c-elevated: #111823;
-  --c-line: rgba(255, 255, 255, 0.08);
-  --c-line-strong: rgba(255, 255, 255, 0.16);
-  --c-text: #e8edf4;
-  --c-muted: #8a96a8;
-  --c-profit: #16f2a0;
-  --c-loss: #ff3d6e;
-  --c-accent: #29d4ff;
-  --c-gold: #f5c451;
-  --c-amber: #ffb547;
+  --c-bg: #05060f;
+  --c-surface: #0b0e22;
+  --c-elevated: #12163a;
+  --c-line: rgb(148 156 255 / 0.1);
+  --c-line-strong: rgb(148 156 255 / 0.2);
+  --c-text: #eef0ff;
+  --c-muted: #8f94bd;
+  --c-profit: #34d399;
+  --c-loss: #f87171;
+  --c-accent: #22d3ee; /* cyan: links, focus, live data */
+  --c-violet: #7c5cff; /* brand */
+  --c-violet-soft: #a594ff; /* violet that passes contrast as text */
+  --c-gold: #fbbf24; /* payouts only */
+  --c-amber: #fbbf24;
 
-  --nav-h: 4rem;
+  --grad-brand: linear-gradient(100deg, var(--c-violet) 0%, #5b7cff 45%, var(--c-accent) 100%);
+  /* Darker version for surfaces carrying white text (keeps contrast >= 4.5:1). */
+  --grad-button: linear-gradient(100deg, #6d4dff 0%, #4361ee 55%, #0e7490 100%);
+  --nav-h: 4.5rem;
   color-scheme: dark;
 }
 
@@ -30,10 +35,12 @@
   --color-profit: var(--c-profit);
   --color-loss: var(--c-loss);
   --color-accent: var(--c-accent);
+  --color-violet: var(--c-violet);
+  --color-violet-soft: var(--c-violet-soft);
   --color-gold: var(--c-gold);
   --color-amber: var(--c-amber);
 
-  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
 
@@ -55,22 +62,23 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: clip;
   }
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
   ::selection {
-    background: color-mix(in oklab, var(--c-accent) 35%, transparent);
+    background: color-mix(in oklab, var(--c-violet) 45%, transparent);
     color: #fff;
   }
   :focus-visible {
     outline: 2px solid var(--c-accent);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: 8px;
   }
 }
 
@@ -78,21 +86,23 @@
 @utility num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "zero" 1;
+  font-feature-settings:
+    "tnum" 1,
+    "zero" 1;
 }
 
+/* Frosted card with a faint violet→cyan hairline border. */
 @utility glass {
   position: relative;
-  background: linear-gradient(180deg, rgb(17 24 35 / 0.72), rgb(11 16 22 / 0.6));
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border-radius: 1rem;
-  /* 1px gradient border */
+  background: linear-gradient(180deg, rgb(18 22 58 / 0.55), rgb(11 14 34 / 0.55));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-radius: 1.25rem;
   border: 1px solid transparent;
   background-clip: padding-box;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.04),
-    0 20px 40px -24px rgb(0 0 0 / 0.8);
+    0 24px 48px -28px rgb(0 0 0 / 0.9);
   &::before {
     content: "";
     position: absolute;
@@ -101,10 +111,10 @@
     padding: 1px;
     background: linear-gradient(
       140deg,
-      rgb(255 255 255 / 0.18),
-      rgb(255 255 255 / 0.04) 35%,
-      rgb(41 212 255 / 0.12) 70%,
-      rgb(255 255 255 / 0.06)
+      rgb(165 148 255 / 0.28),
+      rgb(148 156 255 / 0.06) 40%,
+      rgb(34 211 238 / 0.16) 80%,
+      rgb(148 156 255 / 0.08)
     );
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
@@ -115,53 +125,85 @@
   }
 }
 
+/* Card that lights up under the pointer (set --mx/--my via data-spotlight, see Experience). */
+@utility spotlight {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(124 92 255 / 0.14), transparent 60%);
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
 @utility glow-profit {
-  text-shadow: 0 0 18px rgb(22 242 160 / 0.45);
+  text-shadow: 0 0 18px rgb(52 211 153 / 0.4);
 }
 @utility glow-loss {
-  text-shadow: 0 0 18px rgb(255 61 110 / 0.45);
+  text-shadow: 0 0 18px rgb(248 113 113 / 0.4);
 }
 @utility glow-accent {
-  text-shadow: 0 0 18px rgb(41 212 255 / 0.45);
+  text-shadow: 0 0 20px rgb(34 211 238 / 0.45);
 }
 @utility glow-gold {
-  text-shadow: 0 0 22px rgb(245 196 81 / 0.5);
+  text-shadow: 0 0 22px rgb(251 191 36 / 0.45);
 }
 
 @utility text-gradient {
-  background: linear-gradient(100deg, #fff 0%, #cfe9ff 40%, var(--c-accent) 100%);
+  background: linear-gradient(100deg, #ffffff 0%, #d9d2ff 35%, var(--c-violet-soft) 60%, var(--c-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility text-brand {
+  background: var(--grad-brand);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* Faint terminal grid + vignette behind every page */
-.bg-terminal {
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(41 212 255 / 0.1), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgb(22 242 160 / 0.05), transparent 70%),
-    linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px);
-  background-size:
-    100% 100%,
-    100% 100%,
-    48px 48px,
-    48px 48px;
-  background-position: center top;
+/* ───────────────────────── Page background: slow aurora ─────────────────────────
+   Two blurred colour fields behind everything. Pure CSS; paused under reduced motion. */
+.bg-aurora {
+  isolation: isolate;
 }
-.bg-terminal::after {
+.bg-aurora::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -20vmax;
+  z-index: -1;
   pointer-events: none;
-  z-index: 60;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.012) 0px,
-    rgb(255 255 255 / 0.012) 1px,
-    transparent 1px,
-    transparent 3px
-  );
+  background:
+    radial-gradient(38vmax 30vmax at 18% 12%, rgb(124 92 255 / 0.2), transparent 70%),
+    radial-gradient(34vmax 26vmax at 85% 8%, rgb(34 211 238 / 0.12), transparent 70%),
+    radial-gradient(40vmax 30vmax at 60% 100%, rgb(91 124 255 / 0.1), transparent 70%);
+  /* Static on purpose: animating it forces every frosted card to re-blur each frame. */
+}
+.bg-aurora::after {
+  /* Fine dot grid, faded out towards the bottom of the first screen. */
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 120vh;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(148 156 255 / 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(4vmax, 3vmax, 0) rotate(8deg);
+  }
 }
 
 /* ───────────────────────── Keyframes ───────────────────────── */
@@ -176,12 +218,12 @@
 @keyframes pulse-dot {
   0%,
   100% {
-    box-shadow: 0 0 0 0 currentColor;
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 4px transparent;
-    opacity: 0.6;
+    opacity: 0.45;
+    transform: scale(0.75);
   }
 }
 @keyframes shimmer {
@@ -192,83 +234,203 @@
     background-position: 200% 0;
   }
 }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-/* ───────────────────────── Loader ─────────────────────────
-   Pure CSS so it never waits for JS. An inline script in <head> sets
-   html[data-seen] on repeat visits, which hides it before first paint. */
-.loader {
-  position: fixed;
+/* ───────────────────────── Cinematic hero intro ─────────────────────────
+   The hero plays a ~4 s sequence on the first visit of each browser session:
+   stars warp past, the globe flies in, then the headline settles into place.
+   Only transform/opacity are animated (GPU-composited); the headline is visible from the first frame so it never delays LCP.
+   html[data-intro="seen"] (set before paint by INTRO_SCRIPT) jumps straight to the end. */
+.intro-warp {
+  position: absolute;
   inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  background: var(--c-bg);
+  overflow: hidden;
   pointer-events: none;
-  animation: loader-out 0.3s ease-in 0.9s forwards;
-}
-html[data-seen] .loader {
-  display: none;
-}
-.loader__wick {
-  stroke-dasharray: 60;
-  stroke-dashoffset: 60;
-  animation: draw 0.35s ease-out 0.05s forwards;
-}
-.loader__body {
-  transform-origin: 50% 100%;
-  transform: scaleY(0);
-  animation: grow 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.25s forwards;
-}
-.loader__mark {
   opacity: 0;
-  transform: translateY(6px);
-  animation: mark-in 0.3s ease-out 0.55s forwards;
+  animation: warp-life 2.2s ease-out both;
 }
-.loader__candle {
-  animation: candle-shrink 0.3s ease-in 0.55s forwards;
-  transform-origin: 50% 50%;
+.intro-warp i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 6px #b9c4ff;
+  transform-origin: 0 50%;
+  transform: rotate(var(--a)) translateX(4vmin) scaleX(1);
+  animation: warp 1.6s cubic-bezier(0.55, 0, 0.9, 0.4) var(--d) both;
 }
-@keyframes draw {
+@keyframes warp {
+  0% {
+    transform: rotate(var(--a)) translateX(3vmin) scaleX(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--a)) translateX(90vmax) scaleX(60);
+    opacity: 0;
+  }
+}
+@keyframes warp-life {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.intro-globe {
+  will-change: transform, opacity;
+  animation: globe-in 2.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+@keyframes globe-in {
+  from {
+    transform: translate3d(0, 6%, 0) scale(0.18);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.intro-title {
+  transform-origin: 0 70%;
+  animation: title-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+@keyframes title-in {
+  from {
+    transform: translate3d(0, 0.18em, 0) scale(1.1);
+  }
+  to {
+    transform: none;
+  }
+}
+.intro-rise {
+  animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 2s) both;
+}
+
+/* Arcs on the globe poster draw themselves, then pulse. */
+.arc-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: arc-draw 1.6s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 2s) forwards;
+}
+@keyframes arc-draw {
   to {
     stroke-dashoffset: 0;
   }
 }
-@keyframes grow {
-  to {
-    transform: scaleY(1);
-  }
+.city-ping {
+  position: absolute;
+  width: 1.4%;
+  height: 1.4%;
+  margin: -0.7% 0 0 -0.7%;
+  border-radius: 999px;
+  background: var(--c-accent);
+  will-change: transform, opacity;
+  animation: ping 2.4s cubic-bezier(0, 0, 0.2, 1) var(--d, 0s) infinite;
 }
-@keyframes candle-shrink {
-  to {
-    transform: scale(0.55) translateY(-14px);
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
   }
-}
-@keyframes mark-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes loader-out {
-  to {
+  100% {
+    transform: scale(4.5);
     opacity: 0;
-    visibility: hidden;
   }
 }
 
-/* ───────────────────────── Reduced motion ───────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .loader {
-    display: none;
+html[data-intro="seen"] .intro-warp {
+  display: none;
+}
+html[data-intro="seen"] .intro-globe,
+html[data-intro="seen"] .intro-title,
+html[data-intro="seen"] .intro-rise {
+  animation-duration: 0.6s;
+  animation-delay: 0s;
+}
+html[data-intro="seen"] .arc-draw {
+  animation-delay: 0.2s;
+}
+
+/* Animated gradient line used under page titles. */
+.title-line {
+  height: 2px;
+  width: 4.5rem;
+  border-radius: 2px;
+  background: var(--grad-brand);
+  transform-origin: left;
+  animation: line-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+@keyframes line-grow {
+  from {
+    transform: scaleX(0);
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
+  to {
+    transform: scaleX(1);
   }
+}
+
+/* Orbit rings behind page headers. */
+.orbit {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgb(148 156 255 / 0.1);
+  animation: spin-slow 60s linear infinite;
+}
+.orbit::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--c-accent);
+  box-shadow: 0 0 12px var(--c-accent);
 }
 
 /* ───────────────────────── Gauges & flashes ───────────────────────── */
@@ -281,19 +443,38 @@ html[data-seen] .loader {
   }
 }
 @keyframes flash-profit {
-  0% { background-color: rgb(22 242 160 / 0.28); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgb(52 211 153 / 0.28);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 @keyframes flash-loss {
-  0% { background-color: rgb(255 61 110 / 0.28); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgb(248 113 113 / 0.28);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
-.flash-profit { animation: flash-profit 1.2s ease-out; border-radius: 6px; }
-.flash-loss { animation: flash-loss 1.2s ease-out; border-radius: 6px; }
+.flash-profit {
+  animation: flash-profit 1.2s ease-out;
+  border-radius: 6px;
+}
+.flash-loss {
+  animation: flash-loss 1.2s ease-out;
+  border-radius: 6px;
+}
 
 /* Shimmer skeleton */
 .skeleton {
-  background: linear-gradient(90deg, rgb(255 255 255 / 0.03) 0%, rgb(255 255 255 / 0.08) 50%, rgb(255 255 255 / 0.03) 100%);
+  background: linear-gradient(
+    90deg,
+    rgb(148 156 255 / 0.04) 0%,
+    rgb(148 156 255 / 0.1) 50%,
+    rgb(148 156 255 / 0.04) 100%
+  );
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
   border-radius: 0.75rem;
@@ -308,20 +489,15 @@ html[data-seen] .loader {
   }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* ───────────────────────── Reveal & tilt (no JS animation library) ───────────────────────── */
 .reveal {
   transition:
-    opacity 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay, 0s),
-    transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay, 0s);
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s);
 }
 .reveal[data-reveal="hidden"] {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translate3d(0, 32px, 0) scale(0.97);
 }
 .tilt {
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
@@ -329,9 +505,38 @@ html[data-seen] .loader {
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .tilt-glare {
-  background-image: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.12), transparent 55%);
+  background-image: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(165 148 255 / 0.16), transparent 55%);
 }
+
+/* Mobile menu (Radix data-state) */
+.menu-overlay[data-state="open"] {
+  animation: fade-in 0.25s ease-out;
+}
+.menu-overlay[data-state="closed"] {
+  animation: fade-out 0.2s ease-in;
+}
+.menu-item {
+  animation: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 35ms + 60ms);
+}
+
+/* ───────────────────────── Reduced motion ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  .intro-warp {
+    display: none;
+  }
+  .bg-aurora::before {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
   .tilt {
     transform: none !important;
   }
@@ -341,18 +546,23 @@ html[data-seen] .loader {
   }
 }
 
-/* Mobile menu (Radix data-state) */
-.menu-overlay[data-state="open"] { animation: fade-in 0.25s ease-out; }
-.menu-overlay[data-state="closed"] { animation: fade-out 0.2s ease-in; }
-.menu-item {
-  animation: menu-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  animation-delay: calc(var(--i, 0) * 40ms + 50ms);
+/* Inner-page titles: quick rise (transform only, visible from the first frame, so LCP is not delayed). */
+.page-title {
+  animation: title-in-quick 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-@keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+@keyframes title-in-quick {
+  from {
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    transform: none;
+  }
 }
-@keyframes menu-in {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: none; }
+
+/* Horizontal scrollers (tab rows on phones): scroll, but without a visible bar. */
+.overflow-x-auto {
+  scrollbar-width: none;
+}
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
 }

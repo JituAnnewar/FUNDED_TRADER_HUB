@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("home renders the hero and navigation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: /see performance/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /track record/i }).first()).toBeVisible();
 });
 
 test("unknown pages show the themed 404", async ({ page }) => {

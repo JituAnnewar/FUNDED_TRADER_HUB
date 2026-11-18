@@ -21,10 +21,17 @@ export default async function StrategiesPage() {
   const [strategies, trades] = await Promise.all([getStrategies(), getTrades()]);
   return (
     <>
-      <PageHeader eyebrow="Playbook" title="Strategies" description="Each strategy's numbers are calculated from the trades tagged with it." />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <PageHeader
+        eyebrow="Playbook"
+        title="Strategies"
+        description="Each strategy's numbers are calculated from the trades tagged with it."
+      />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {strategies.length === 0 ? (
-          <EmptyState title="No strategies published yet" body="The playbook will appear here with rules, checklists and live stats." />
+          <EmptyState
+            title="No strategies published yet"
+            body="The playbook will appear here with rules, checklists and live stats."
+          />
         ) : (
           <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {strategies.map((s, i) => {
@@ -38,7 +45,7 @@ export default async function StrategiesPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <h2 className="text-lg font-semibold">{s.name}</h2>
-                            <p className="mt-1 text-sm leading-relaxed text-muted">{s.summary}</p>
+                            <p className="text-muted mt-1 text-sm leading-relaxed">{s.summary}</p>
                           </div>
                           {!s.is_active && <Tag>Retired</Tag>}
                         </div>
@@ -53,17 +60,19 @@ export default async function StrategiesPage() {
                           ))}
                         </div>
                         <Sparkline values={equityCurve(list).map((p) => p.value)} />
-                        <dl className="mt-auto grid grid-cols-3 gap-2 border-t border-line pt-3 text-sm">
+                        <dl className="border-line mt-auto grid grid-cols-3 gap-2 border-t pt-3 text-sm">
                           <div>
-                            <dt className="text-[11px] text-muted">Trades</dt>
+                            <dt className="text-muted text-[11px]">Trades</dt>
                             <dd className="num">{sum.count}</dd>
                           </div>
                           <div>
-                            <dt className="text-[11px] text-muted">Win rate</dt>
-                            <dd className="num">{sum.winRate === null ? "—" : formatPct(sum.winRate * 100, 0, false)}</dd>
+                            <dt className="text-muted text-[11px]">Win rate</dt>
+                            <dd className="num">
+                              {sum.winRate === null ? "—" : formatPct(sum.winRate * 100, 0, false)}
+                            </dd>
                           </div>
                           <div>
-                            <dt className="text-[11px] text-muted">Net</dt>
+                            <dt className="text-muted text-[11px]">Net</dt>
                             <dd>
                               <Pnl value={sum.net} compact />
                             </dd>

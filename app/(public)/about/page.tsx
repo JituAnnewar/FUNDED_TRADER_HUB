@@ -25,14 +25,23 @@ export default async function AboutPage() {
   return (
     <>
       <PageHeader eyebrow="About me" title={settings.trader_name} description={settings.tagline} />
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[280px_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-[280px_1fr]">
         <div>
           {settings.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element -- storage image
-            <img src={settings.avatar_url} alt={`Photo of ${settings.trader_name}`} className="aspect-square w-full rounded-2xl border border-line object-cover" />
+            <img
+              src={settings.avatar_url}
+              alt={`Photo of ${settings.trader_name}`}
+              className="border-line aspect-square w-full rounded-2xl border object-cover"
+            />
           ) : (
-            <div className="grid aspect-square w-full place-items-center rounded-2xl border border-line bg-gradient-to-br from-elevated to-surface" aria-hidden="true">
-              <span className="font-display text-6xl font-semibold text-gradient">{settings.trader_name.slice(0, 1)}</span>
+            <div
+              className="border-line from-elevated to-surface grid aspect-square w-full place-items-center rounded-2xl border bg-gradient-to-br"
+              aria-hidden="true"
+            >
+              <span className="font-display text-gradient text-6xl font-semibold">
+                {settings.trader_name.slice(0, 1)}
+              </span>
             </div>
           )}
         </div>
@@ -43,15 +52,18 @@ export default async function AboutPage() {
 
       {milestones.length > 0 && (
         <Section id="milestones" title="Milestones">
-          <ol className="relative space-y-6 border-l border-line pl-8">
+          <ol className="border-line relative space-y-6 border-l pl-8">
             {milestones.map((m, i) => (
               <Reveal as="li" key={m.id} delay={i * 0.05} className="relative">
-                <span className="absolute top-1.5 -left-[38px] grid size-4 place-items-center rounded-full border border-accent bg-bg" aria-hidden="true">
-                  <span className="size-1.5 rounded-full bg-accent" />
+                <span
+                  className="border-accent bg-bg absolute top-1.5 -left-[38px] grid size-4 place-items-center rounded-full border"
+                  aria-hidden="true"
+                >
+                  <span className="bg-accent size-1.5 rounded-full" />
                 </span>
-                <p className="num text-xs text-accent">{formatDateIST(new Date(m.date))}</p>
+                <p className="num text-accent text-xs">{formatDateIST(new Date(m.date))}</p>
                 <h3 className="mt-0.5 text-lg font-semibold">{m.title}</h3>
-                {m.description && <p className="text-sm text-muted">{m.description}</p>}
+                {m.description && <p className="text-muted text-sm">{m.description}</p>}
               </Reveal>
             ))}
           </ol>

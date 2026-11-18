@@ -21,13 +21,24 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { views } = await getPortfolio();
   const v = views.find((x) => x.account.id === id);
   if (!v) return { title: "Account" };
-  const title = `${v.firm?.name ?? ""} ${formatMoney(v.account.account_size, { compact: true })} ${v.account.label}`.trim();
-  return { title, description: `${PHASE_LABELS[v.account.phase]} account. Balance ${formatMoney(v.account.current_balance)}.` };
+  const title =
+    `${v.firm?.name ?? ""} ${formatMoney(v.account.account_size, { compact: true })} ${v.account.label}`.trim();
+  return {
+    title,
+    description: `${PHASE_LABELS[v.account.phase]} account. Balance ${formatMoney(v.account.current_balance)}.`,
+  };
 }
 
 export default function AccountPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-7xl space-y-4 px-4 pt-20 sm:px-6"><div className="skeleton h-12 w-80" /><div className="skeleton h-96" /></div>}>
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-6xl space-y-4 px-4 pt-20 sm:px-6">
+          <div className="skeleton h-12 w-80" />
+          <div className="skeleton h-96" />
+        </div>
+      }
+    >
       <AccountContent params={params} />
     </Suspense>
   );
@@ -35,7 +46,12 @@ export default function AccountPage({ params }: { params: Promise<{ id: string }
 
 async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [portfolio, history, positions, settings] = await Promise.all([getPortfolio(), getPhaseHistory(), getOpenPositions(), getSettings()]);
+  const [portfolio, history, positions, settings] = await Promise.all([
+    getPortfolio(),
+    getPhaseHistory(),
+    getOpenPositions(),
+    getSettings(),
+  ]);
   const v = portfolio.views.find((x) => x.account.id === id);
   if (!v) notFound();
   const a = v.account;
@@ -48,26 +64,27 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <header className="mx-auto max-w-7xl px-4 pt-14 pb-8 sm:px-6 sm:pt-20">
-        <Link href="/accounts" className="text-sm text-muted hover:text-fg">
+      <header className="mx-auto max-w-6xl px-4 pt-14 pb-8 sm:px-6 sm:pt-20">
+        <Link href="/accounts" className="text-muted hover:text-fg text-sm">
           ← All accounts
         </Link>
         <div className="mt-4 flex flex-wrap items-center gap-4">
           <FirmMark name={v.firm?.name ?? "Firm"} logo={v.firm?.logo_url} className="size-12" />
           <div>
             <h1 className="text-3xl font-semibold sm:text-4xl">
-              {v.firm?.name} {formatMoney(a.account_size, { compact: true })} <span className="text-muted">{a.label}</span>
+              {v.firm?.name} {formatMoney(a.account_size, { compact: true })}{" "}
+              <span className="text-muted">{a.label}</span>
             </h1>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <p className="text-muted mt-1 flex flex-wrap items-center gap-2 text-sm">
               <PhaseBadge phase={a.phase} /> {a.platform} · Started {formatDateIST(new Date(a.start_date))}
               {a.masked_account_id && <span className="num">· ••{a.masked_account_id}</span>}
             </p>
           </div>
         </div>
-        {a.status_note && <p className="mt-4 max-w-2xl text-sm text-muted">{a.status_note}</p>}
+        {a.status_note && <p className="text-muted mt-4 max-w-2xl text-sm">{a.status_note}</p>}
       </header>
 
-      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6 px-4 sm:px-6">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <StatTile label="Balance">
             <Money value={a.current_balance} />
@@ -90,12 +107,20 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
               <EquityChart
                 label={`Balance of ${a.label}`}
                 series={[
-                  { name: "Balance", color: "#29D4FF", points: snaps.map((s) => ({ time: `${s.date}T12:00:00Z`, value: s.balance })) },
-                  { name: "Equity", color: "#16F2A0", points: snaps.map((s) => ({ time: `${s.date}T12:00:00Z`, value: s.equity })) },
+                  {
+                    name: "Balance",
+                    color: "#A594FF",
+                    points: snaps.map((s) => ({ time: `${s.date}T12:00:00Z`, value: s.balance })),
+                  },
+                  {
+                    name: "Equity",
+                    color: "#34D399",
+                    points: snaps.map((s) => ({ time: `${s.date}T12:00:00Z`, value: s.equity })),
+                  },
                 ]}
               />
             ) : (
-              <p className="text-sm text-muted">The balance chart appears after the second daily update.</p>
+              <p className="text-muted text-sm">The balance chart appears after the second daily update.</p>
             )}
           </GlassPanel>
           <GlassPanel className="space-y-5 p-5">
@@ -113,34 +138,52 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
               </div>
             )}
             {v.daily && (
-              <BreachMeter label="Daily loss" usedPct={v.daily.usedPct} level={v.daily.level} detail={<><span className="num">{formatMoney(v.daily.distance)}</span> left of <span className="num">{formatMoney(v.daily.limit)}</span></>} />
+              <BreachMeter
+                label="Daily loss"
+                usedPct={v.daily.usedPct}
+                level={v.daily.level}
+                detail={
+                  <>
+                    <span className="num">{formatMoney(v.daily.distance)}</span> left of{" "}
+                    <span className="num">{formatMoney(v.daily.limit)}</span>
+                  </>
+                }
+              />
             )}
             {v.max && (
               <BreachMeter
                 label={`Max loss (${v.rules?.drawdown_type.replace("_", " ")})`}
                 usedPct={v.max.usedPct}
                 level={v.max.level}
-                detail={<>Breach level <span className="num">{formatMoney(v.max.floor ?? 0)}</span> · <span className="num">{formatMoney(v.max.distance)}</span> away</>}
+                detail={
+                  <>
+                    Breach level <span className="num">{formatMoney(v.max.floor ?? 0)}</span> ·{" "}
+                    <span className="num">{formatMoney(v.max.distance)}</span> away
+                  </>
+                }
               />
             )}
-            <dl className="grid grid-cols-2 gap-3 border-t border-line pt-4 text-sm">
+            <dl className="border-line grid grid-cols-2 gap-3 border-t pt-4 text-sm">
               <div>
-                <dt className="text-xs text-muted">Trading days</dt>
+                <dt className="text-muted text-xs">Trading days</dt>
                 <dd className="num">
                   {v.tradingDaysDone}
                   {v.tradingDaysRequired ? ` / ${v.tradingDaysRequired}` : ""}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">Consistency</dt>
-                <dd className="num">{v.consistency.score === null ? "—" : `${v.consistency.score.toFixed(0)}%`}{v.consistency.limit ? ` / ${v.consistency.limit}%` : ""}</dd>
+                <dt className="text-muted text-xs">Consistency</dt>
+                <dd className="num">
+                  {v.consistency.score === null ? "—" : `${v.consistency.score.toFixed(0)}%`}
+                  {v.consistency.limit ? ` / ${v.consistency.limit}%` : ""}
+                </dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">High-water mark</dt>
+                <dt className="text-muted text-xs">High-water mark</dt>
                 <dd className="num">{formatMoney(a.high_water_mark)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">Trades</dt>
+                <dt className="text-muted text-xs">Trades</dt>
                 <dd className="num">{v.summary.count}</dd>
               </div>
             </dl>
@@ -151,16 +194,19 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
 
       {phases.length > 0 && (
         <Section id="phases" title="Phase history">
-          <ol className="relative space-y-4 border-l border-line pl-6">
+          <ol className="border-line relative space-y-4 border-l pl-6">
             {phases.map((h) => (
               <li key={h.id} className="relative">
-                <span className="absolute top-1.5 -left-[29px] size-2.5 rounded-full border-2 border-bg bg-accent" aria-hidden="true" />
+                <span
+                  className="border-bg bg-accent absolute top-1.5 -left-[29px] size-2.5 rounded-full border-2"
+                  aria-hidden="true"
+                />
                 <p className="text-sm">
                   {h.from_phase ? `${PHASE_LABELS[h.from_phase]} → ` : ""}
                   <strong className="font-medium">{PHASE_LABELS[h.to_phase]}</strong>
                 </p>
-                <p className="num text-xs text-muted">{formatDateIST(new Date(h.changed_at))}</p>
-                {h.note && <p className="text-xs text-muted">{h.note}</p>}
+                <p className="num text-muted text-xs">{formatDateIST(new Date(h.changed_at))}</p>
+                {h.note && <p className="text-muted text-xs">{h.note}</p>}
               </li>
             ))}
           </ol>
@@ -169,9 +215,9 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
 
       {open.length > 0 && (
         <Section id="positions" title="Open positions">
-          <div className="overflow-x-auto rounded-2xl border border-line">
+          <div className="border-line overflow-x-auto rounded-2xl border">
             <table className="w-full text-sm">
-              <thead className="bg-white/[0.02] text-left text-[11px] tracking-[0.12em] text-muted uppercase">
+              <thead className="text-muted bg-white/[0.02] text-left text-[11px] tracking-[0.12em] uppercase">
                 <tr>
                   <th className="px-4 py-3 font-medium">Symbol</th>
                   <th className="px-4 py-3 font-medium">Side</th>
@@ -183,12 +229,12 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
               </thead>
               <tbody>
                 {open.map((p) => (
-                  <tr key={p.id} className="border-t border-line">
+                  <tr key={p.id} className="border-line border-t">
                     <td className="px-4 py-3">{p.symbol}</td>
                     <td className="px-4 py-3">{p.direction === "long" ? "Long" : "Short"}</td>
                     <td className="num px-4 py-3 text-right">{p.size}</td>
                     <td className="num px-4 py-3 text-right">{p.entry_price}</td>
-                    <td className="num px-4 py-3 text-muted">{formatDateTimeIST(new Date(p.opened_at))}</td>
+                    <td className="num text-muted px-4 py-3">{formatDateTimeIST(new Date(p.opened_at))}</td>
                     <td className="px-4 py-3 text-right">
                       <Pnl value={p.floating_pnl} />
                     </td>
@@ -214,9 +260,9 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
 
       {snaps.length > 0 && (
         <Section id="snapshots" title="Daily snapshots">
-          <div className="max-h-96 overflow-auto rounded-2xl border border-line">
+          <div className="border-line max-h-96 overflow-auto rounded-2xl border">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-surface text-left text-[11px] tracking-[0.12em] text-muted uppercase">
+              <thead className="bg-surface text-muted sticky top-0 text-left text-[11px] tracking-[0.12em] uppercase">
                 <tr>
                   <th className="px-4 py-3 font-medium">Date</th>
                   <th className="px-4 py-3 text-right font-medium">Balance</th>
@@ -226,8 +272,8 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
               </thead>
               <tbody>
                 {[...snaps].reverse().map((s) => (
-                  <tr key={s.id} className="border-t border-line">
-                    <td className="num px-4 py-2 text-muted">{s.date}</td>
+                  <tr key={s.id} className="border-line border-t">
+                    <td className="num text-muted px-4 py-2">{s.date}</td>
                     <td className="num px-4 py-2 text-right">{formatMoney(s.balance)}</td>
                     <td className="num px-4 py-2 text-right">{formatMoney(s.equity)}</td>
                     <td className="px-4 py-2 text-right">
@@ -242,7 +288,11 @@ async function AccountContent({ params }: { params: Promise<{ id: string }> }) {
       )}
 
       <Section id="account-trades" title="Trades">
-        {trades.length ? <TradeTable trades={trades.slice(0, 50)} accountLabel={label} /> : <EmptyState title="No public trades on this account" body="Trades will show here when they are logged." />}
+        {trades.length ? (
+          <TradeTable trades={trades.slice(0, 50)} accountLabel={label} />
+        ) : (
+          <EmptyState title="No public trades on this account" body="Trades will show here when they are logged." />
+        )}
         {trades.length > 50 && (
           <p className="mt-3 text-sm">
             <Link href={`/journal?account=${a.id}`} className="text-accent hover:underline">

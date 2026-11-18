@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 /**
  * Site-wide motion extras, mounted once in the public layout:
  * - Lenis smooth scroll (off under reduced motion and on touch devices)
- * - Custom cursor + magnetic buttons (fine pointers only; add `data-magnetic` to an element)
+ * - Custom cursor, magnetic buttons (`data-magnetic`) and spotlight cards (`data-spotlight`), fine pointers only
  */
 export function Experience() {
   const dot = useRef<HTMLDivElement>(null);
@@ -50,7 +50,10 @@ export function Experience() {
       const onMove = (e: PointerEvent) => {
         x = e.clientX;
         y = e.clientY;
-        const target = e.target instanceof Element ? e.target.closest("a,button,[role=button],input,select,textarea,[data-magnetic]") : null;
+        const target =
+          e.target instanceof Element
+            ? e.target.closest("a,button,[role=button],input,select,textarea,[data-magnetic]")
+            : null;
         hovering = Boolean(target);
       };
       const tick = () => {
@@ -58,7 +61,7 @@ export function Experience() {
         ry += (y - ry) * 0.18;
         d.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
         r.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${hovering ? 1.8 : 1})`;
-        r.style.borderColor = hovering ? "rgb(41 212 255 / 0.8)" : "rgb(255 255 255 / 0.35)";
+        r.style.borderColor = hovering ? "rgb(34 211 238 / 0.85)" : "rgb(255 255 255 / 0.35)";
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -78,10 +81,21 @@ export function Experience() {
       };
       window.addEventListener("pointermove", onMagnet, { passive: true });
 
+      // Spotlight cards: light follows the pointer (see the .spotlight utility).
+      const onSpot = (e: PointerEvent) => {
+        const el = e.target instanceof Element ? (e.target.closest("[data-spotlight]") as HTMLElement | null) : null;
+        if (!el) return;
+        const b = el.getBoundingClientRect();
+        el.style.setProperty("--mx", `${e.clientX - b.left}px`);
+        el.style.setProperty("--my", `${e.clientY - b.top}px`);
+      };
+      window.addEventListener("pointermove", onSpot, { passive: true });
+
       cleanups.push(() => {
         cancelAnimationFrame(raf);
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointermove", onMagnet);
+        window.removeEventListener("pointermove", onSpot);
         document.documentElement.classList.remove("has-cursor");
       });
     }
@@ -90,8 +104,14 @@ export function Experience() {
   }, []);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[90] hidden [@media(pointer:fine)]:block motion-reduce:!hidden">
-      <div ref={dot} className="absolute top-0 left-0 size-1.5 rounded-full bg-accent shadow-[0_0_12px_var(--c-accent)]" />
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-[90] hidden motion-reduce:!hidden [@media(pointer:fine)]:block"
+    >
+      <div
+        ref={dot}
+        className="bg-accent absolute top-0 left-0 size-1.5 rounded-full shadow-[0_0_12px_var(--c-accent)]"
+      />
       <div
         ref={ring}
         className="absolute top-0 left-0 size-8 rounded-full border border-white/35 transition-[border-color,scale] duration-200"

@@ -26,9 +26,13 @@ export default async function ToolkitPage() {
   const items = await getToolkit();
   return (
     <>
-      <PageHeader eyebrow="What I use" title="Toolkit" description="Affiliate links are labelled. I only list tools I actually use." />
+      <PageHeader
+        eyebrow="What I use"
+        title="Toolkit"
+        description="Affiliate links are labelled. I only list tools I actually use."
+      />
       {items.length === 0 && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <EmptyState title="Toolkit coming soon" body="Platforms, indicators and setup details will be listed here." />
         </div>
       )}
@@ -43,20 +47,27 @@ export default async function ToolkitPage() {
                   <GlassPanel className="flex h-full gap-4 p-5">
                     {item.image_url && (
                       // eslint-disable-next-line @next/next/no-img-element -- storage images
-                      <img src={item.image_url} alt="" className="size-14 shrink-0 rounded-xl border border-line object-cover" loading="lazy" />
+                      <img
+                        src={item.image_url}
+                        alt=""
+                        className="border-line size-14 shrink-0 rounded-xl border object-cover"
+                        loading="lazy"
+                      />
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-semibold">{item.name}</h3>
                         {item.is_affiliate && <Tag tone="gold">Affiliate link</Tag>}
                       </div>
-                      {item.description && <p className="mt-1 text-sm leading-relaxed text-muted">{item.description}</p>}
+                      {item.description && (
+                        <p className="text-muted mt-1 text-sm leading-relaxed">{item.description}</p>
+                      )}
                       {item.url && (
                         <a
                           href={item.url}
                           target="_blank"
                           rel={item.is_affiliate ? "sponsored noopener noreferrer" : "noopener noreferrer"}
-                          className="mt-2 inline-flex items-center gap-1 text-sm text-accent hover:underline"
+                          className="text-accent mt-2 inline-flex items-center gap-1 text-sm hover:underline"
                         >
                           Visit <ExternalLink className="size-3.5" aria-hidden="true" />
                         </a>

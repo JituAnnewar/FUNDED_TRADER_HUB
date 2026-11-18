@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { LOADER_SCRIPT } from "@/components/motion/loader";
+import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { INTRO_SCRIPT } from "@/components/motion/intro-script";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
+const display = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
 
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#05070A",
+  themeColor: "#05060F",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -35,16 +35,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Marks repeat visits before first paint so the loader is skipped. */}
-        <script dangerouslySetInnerHTML={{ __html: LOADER_SCRIPT }} />
+        {/* Marks repeat visits in this session so the hero intro is shortened. */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
       </head>
-      <body className="bg-terminal">{children}</body>
+      <body className="bg-aurora">{children}</body>
     </html>
   );
 }

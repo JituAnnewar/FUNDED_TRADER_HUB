@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
+import { useState, useTransition } from "react";
 import { RANGE_LABELS, type RangePreset } from "@/lib/analytics/dates";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,8 @@ export function PerformanceFilters({ filters, showRange = true }: { filters: Fil
   const params = useSearchParams();
   const [pending, start] = useTransition();
   const range = (params.get("range") as RangePreset | null) ?? "all";
+  const activeCount = filters.filter((f) => params.get(f.key)).length;
+  const [open, setOpen] = useState(activeCount > 0);
 
   const set = (updates: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString());
@@ -41,58 +44,109 @@ export function PerformanceFilters({ filters, showRange = true }: { filters: Fil
 
   return (
     <div className={cn("space-y-3 transition-opacity", pending && "opacity-60")} aria-busy={pending}>
-      {showRange && (
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <div className="inline-flex gap-1 rounded-xl border border-line bg-white/[0.02] p-1" role="group" aria-label="Date range">
-            {RANGES.map((r) => (
-              <button
-                key={r}
-                type="button"
-                aria-pressed={range === r}
-                onClick={() => set({ range: r === "all" ? null : r, ...(r !== "custom" ? { from: null, to: null } : {}) })}
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs whitespace-nowrap transition-colors",
-                  range === r ? "bg-accent text-bg" : "text-muted hover:text-fg",
-                )}
-              >
-                {RANGE_LABELS[r]}
-              </button>
-            ))}
+      <div className="flex flex-wrap items-center gap-2">
+        {showRange && (
+          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div
+              className="border-line inline-flex gap-1 rounded-xl border bg-white/[0.02] p-1"
+              role="group"
+              aria-label="Date range"
+            >
+              {RANGES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  aria-pressed={range === r}
+                  onClick={() =>
+                    set({ range: r === "all" ? null : r, ...(r !== "custom" ? { from: null, to: null } : {}) })
+                  }
+                  className={cn(
+                    "rounded-lg px-3 py-1.5 text-xs whitespace-nowrap transition-colors",
+                    range === r
+                      ? "bg-[image:var(--grad-button)] text-white shadow-[0_6px_18px_-8px_rgb(124_92_255/0.9)]"
+                      : "text-muted hover:text-fg",
+                  )}
+                >
+                  {RANGE_LABELS[r]}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {filters.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className={cn(
+              "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-sm transition-colors",
+              open || activeCount
+                ? "border-violet-soft/40 bg-violet/10 text-fg"
+                : "border-line text-muted hover:text-fg bg-white/[0.02]",
+            )}
+          >
+            <SlidersHorizontal className="size-4" aria-hidden="true" />
+            Filters
+            {activeCount > 0 && (
+              <span className="num bg-violet grid size-5 place-items-center rounded-full text-[11px] text-white">
+                {activeCount}
+              </span>
+            )}
+          </button>
+        )}
+        {[...params.keys()].some((k) => k !== "range" && k !== "page") && (
+          <button
+            type="button"
+            onClick={() => router.replace(pathname, { scroll: false })}
+            className="text-accent inline-flex h-9 items-center gap-1 rounded-xl px-3 text-sm hover:bg-white/5"
+          >
+            <X className="size-3.5" aria-hidden="true" /> Clear
+          </button>
+        )}
+      </div>
       {showRange && range === "custom" && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <label className="flex items-center gap-2">
             <span className="text-muted">From</span>
-            <input type="date" defaultValue={params.get("from") ?? ""} onChange={(e) => set({ from: e.target.value })} className={selectCls} />
+            <input
+              type="date"
+              defaultValue={params.get("from") ?? ""}
+              onChange={(e) => set({ from: e.target.value })}
+              className={selectCls}
+            />
           </label>
           <label className="flex items-center gap-2">
             <span className="text-muted">To</span>
-            <input type="date" defaultValue={params.get("to") ?? ""} onChange={(e) => set({ to: e.target.value })} className={selectCls} />
+            <input
+              type="date"
+              defaultValue={params.get("to") ?? ""}
+              onChange={(e) => set({ to: e.target.value })}
+              className={selectCls}
+            />
           </label>
         </div>
       )}
-      <div className="flex flex-wrap gap-2">
-        {filters.map((f) => (
-          <label key={f.key} className="flex items-center gap-2">
-            <span className="sr-only">{f.label}</span>
-            <select value={params.get(f.key) ?? ""} onChange={(e) => set({ [f.key]: e.target.value })} className={selectCls}>
-              <option value="">All {f.label.toLowerCase()}</option>
-              {f.options.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        ))}
-        {[...params.keys()].some((k) => k !== "range" && k !== "page") && (
-          <button type="button" onClick={() => router.replace(pathname, { scroll: false })} className="h-9 rounded-lg px-3 text-sm text-accent hover:bg-white/5">
-            Clear filters
-          </button>
-        )}
-      </div>
+      {open && filters.length > 0 && (
+        <div className="glass flex animate-[rise_0.3s_ease-out] flex-wrap gap-2 !rounded-xl p-3">
+          {filters.map((f) => (
+            <label key={f.key} className="flex items-center gap-2">
+              <span className="sr-only">{f.label}</span>
+              <select
+                value={params.get(f.key) ?? ""}
+                onChange={(e) => set({ [f.key]: e.target.value })}
+                className={selectCls}
+              >
+                <option value="">All {f.label.toLowerCase()}</option>
+                {f.options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

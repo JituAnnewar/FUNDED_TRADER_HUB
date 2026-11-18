@@ -16,15 +16,19 @@ export default async function ContactPage() {
   const socials = socialLinks(settings.socials);
   return (
     <>
-      <PageHeader eyebrow="Get in touch" title="Contact" description="Mentorship, collaboration or business. Messages go straight to my inbox." />
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_320px]">
+      <PageHeader
+        eyebrow="Get in touch"
+        title="Contact"
+        description="Mentorship, collaboration or business. Messages go straight to my inbox."
+      />
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_320px]">
         <GlassPanel className="p-5 sm:p-8">
           <ContactForm turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined} />
         </GlassPanel>
         <div className="space-y-4">
           {socials.length > 0 && (
             <GlassPanel className="p-5">
-              <h2 className="mb-3 text-sm font-medium tracking-wide text-muted uppercase">Or message me on</h2>
+              <h2 className="text-muted mb-3 text-sm font-medium tracking-wide uppercase">Or message me on</h2>
               <ul className="space-y-2">
                 {socials.map((s) => (
                   <li key={s.id}>
@@ -32,9 +36,9 @@ export default async function ContactPage() {
                       href={s.url ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.02] px-4 py-3 text-sm transition-colors hover:border-line-strong hover:bg-white/[0.05]"
+                      className="border-line hover:border-line-strong flex items-center gap-3 rounded-xl border bg-white/[0.02] px-4 py-3 text-sm transition-colors hover:bg-white/[0.05]"
                     >
-                      <SocialIcon id={s.id} className="size-5 text-accent" />
+                      <SocialIcon id={s.id} className="text-accent size-5" />
                       {s.label}
                     </a>
                   </li>
@@ -42,8 +46,9 @@ export default async function ContactPage() {
               </ul>
             </GlassPanel>
           )}
-          <GlassPanel className="p-5 text-sm leading-relaxed text-muted">
-            I do not manage money, sell signals or give personal financial advice. For anything else, I usually reply within a few days.
+          <GlassPanel className="text-muted p-5 text-sm leading-relaxed">
+            I do not manage money, sell signals or give personal financial advice. For anything else, I usually reply
+            within a few days.
           </GlassPanel>
         </div>
       </div>

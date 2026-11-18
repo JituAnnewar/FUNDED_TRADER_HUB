@@ -21,7 +21,8 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Journal",
-  description: "Every public trade with screenshots, notes, emotions and lessons, plus the daily pre-market plan and review.",
+  description:
+    "Every public trade with screenshots, notes, emotions and lessons, plus the daily pre-market plan and review.",
 };
 
 const PER_PAGE = 25;
@@ -29,8 +30,20 @@ const PER_PAGE = 25;
 export default function JournalPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   return (
     <>
-      <PageHeader eyebrow="Trade log" title="Journal" description="Every trade I make public, and the plan and review I write each trading day." />
-      <Suspense fallback={<div className="mx-auto max-w-7xl space-y-2 px-4 sm:px-6">{Array.from({ length: 8 }, (_, i) => <div key={i} className="skeleton h-12" />)}</div>}>
+      <PageHeader
+        eyebrow="Trade log"
+        title="Journal"
+        description="Every trade I make public, and the plan and review I write each trading day."
+      />
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-6xl space-y-2 px-4 sm:px-6">
+            {Array.from({ length: 8 }, (_, i) => (
+              <div key={i} className="skeleton h-12" />
+            ))}
+          </div>
+        }
+      >
         <JournalContent searchParams={searchParams} />
       </Suspense>
     </>
@@ -44,14 +57,23 @@ async function JournalContent({ searchParams }: { searchParams: Promise<SearchPa
   const flat: Record<string, string | undefined> = Object.fromEntries(Object.keys(sp).map((k) => [k, param(sp, k)]));
 
   const tabs = (
-    <div className="inline-flex gap-1 rounded-xl border border-line bg-white/[0.02] p-1" role="tablist" aria-label="Journal view">
+    <div
+      className="border-line inline-flex gap-1 rounded-xl border bg-white/[0.02] p-1"
+      role="tablist"
+      aria-label="Journal view"
+    >
       {(["trades", "days"] as const).map((v) => (
         <Link
           key={v}
           role="tab"
           aria-selected={view === v}
           href={v === "trades" ? "/journal" : "/journal?view=days"}
-          className={cn("rounded-lg px-4 py-1.5 text-sm", view === v ? "bg-accent text-bg" : "text-muted hover:text-fg")}
+          className={cn(
+            "rounded-lg px-4 py-1.5 text-sm",
+            view === v
+              ? "bg-[image:var(--grad-button)] text-white shadow-[0_6px_18px_-8px_rgb(124_92_255/0.9)]"
+              : "text-muted hover:text-fg",
+          )}
         >
           {v === "trades" ? "Trades" : "Daily journal"}
         </Link>
@@ -62,7 +84,11 @@ async function JournalContent({ searchParams }: { searchParams: Promise<SearchPa
   if (view === "days") {
     const entries = await getJournalEntries();
     const q = param(sp, "q")?.toLowerCase();
-    const list = q ? entries.filter((e) => `${e.pre_market_plan} ${e.post_market_review} ${e.lessons} ${e.tags.join(" ")}`.toLowerCase().includes(q)) : entries;
+    const list = q
+      ? entries.filter((e) =>
+          `${e.pre_market_plan} ${e.post_market_review} ${e.lessons} ${e.tags.join(" ")}`.toLowerCase().includes(q),
+        )
+      : entries;
     const pages = Math.max(1, Math.ceil(list.length / 10));
     const slice = list.slice((page - 1) * 10, page * 10);
     return (
@@ -90,16 +116,16 @@ async function JournalContent({ searchParams }: { searchParams: Promise<SearchPa
                   </div>
                   <div className="grid gap-5 md:grid-cols-2">
                     <div>
-                      <h3 className="mb-1.5 text-xs tracking-[0.16em] text-muted uppercase">Pre-market plan</h3>
+                      <h3 className="text-muted mb-1.5 text-xs tracking-[0.16em] uppercase">Pre-market plan</h3>
                       <Markdown className="text-sm">{e.pre_market_plan ?? "—"}</Markdown>
                     </div>
                     <div>
-                      <h3 className="mb-1.5 text-xs tracking-[0.16em] text-muted uppercase">Post-market review</h3>
+                      <h3 className="text-muted mb-1.5 text-xs tracking-[0.16em] uppercase">Post-market review</h3>
                       <Markdown className="text-sm">{e.post_market_review ?? "—"}</Markdown>
                     </div>
                   </div>
                   {e.lessons && (
-                    <p className="mt-4 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2 text-sm">
+                    <p className="border-accent/20 bg-accent/5 mt-4 rounded-lg border px-3 py-2 text-sm">
                       <span className="text-accent">Lesson:</span> {e.lessons}
                     </p>
                   )}
@@ -108,45 +134,82 @@ async function JournalContent({ searchParams }: { searchParams: Promise<SearchPa
             ))}
           </ol>
         ) : (
-          <EmptyState title="No journal entries" body={q ? "Nothing matches that search." : "Daily plans and reviews will appear here."} />
+          <EmptyState
+            title="No journal entries"
+            body={q ? "Nothing matches that search." : "Daily plans and reviews will appear here."}
+          />
         )}
         <Pagination page={page} pages={pages} basePath="/journal" params={flat} />
       </div>
     );
   }
 
-  const [{ trades: all, accounts, firms, generatedAt }, strategies] = await Promise.all([getPortfolio(), getStrategies()]);
+  const [{ trades: all, accounts, firms, generatedAt }, strategies] = await Promise.all([
+    getPortfolio(),
+    getStrategies(),
+  ]);
   const trades = filterTrades(all, parseFilters(sp), accounts, new Date(generatedAt));
   const pages = Math.max(1, Math.ceil(trades.length / PER_PAGE));
   const current = Math.min(page, pages);
   const slice = trades.slice((current - 1) * PER_PAGE, current * PER_PAGE);
-  const accountLabel = new Map(accounts.map((a) => [a.id, `${firms.find((f) => f.id === a.firm_id)?.name ?? ""} ${a.label}`.trim()]));
+  const accountLabel = new Map(
+    accounts.map((a) => [a.id, `${firms.find((f) => f.id === a.firm_id)?.name ?? ""} ${a.label}`.trim()]),
+  );
   const net = trades.reduce((s, t) => s + t.net_pnl, 0);
   const today = dayKey(new Date(generatedAt));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5 px-4 sm:px-6">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {tabs}
         <SearchBox placeholder="Search symbol, tag or note" />
       </div>
       <PerformanceFilters
         filters={[
-          { key: "account", label: "Accounts", options: accounts.map((a) => ({ value: a.id, label: accountLabel.get(a.id) ?? a.label })) },
+          {
+            key: "account",
+            label: "Accounts",
+            options: accounts.map((a) => ({ value: a.id, label: accountLabel.get(a.id) ?? a.label })),
+          },
           { key: "strategy", label: "Strategies", options: strategies.map((s) => ({ value: s.id, label: s.name })) },
-          { key: "symbol", label: "Symbols", options: [...new Set(all.map((t) => t.symbol))].sort().map((s) => ({ value: s, label: s })) },
-          { key: "session", label: "Sessions", options: (Object.keys(TRADE_SESSION_LABELS) as TradeSession[]).map((s) => ({ value: s, label: TRADE_SESSION_LABELS[s] })) },
-          { key: "direction", label: "Directions", options: [{ value: "long", label: "Long" }, { value: "short", label: "Short" }] },
+          {
+            key: "symbol",
+            label: "Symbols",
+            options: [...new Set(all.map((t) => t.symbol))].sort().map((s) => ({ value: s, label: s })),
+          },
+          {
+            key: "session",
+            label: "Sessions",
+            options: (Object.keys(TRADE_SESSION_LABELS) as TradeSession[]).map((s) => ({
+              value: s,
+              label: TRADE_SESSION_LABELS[s],
+            })),
+          },
+          {
+            key: "direction",
+            label: "Directions",
+            options: [
+              { value: "long", label: "Long" },
+              { value: "short", label: "Short" },
+            ],
+          },
         ]}
       />
-      <p className="text-sm text-muted">
+      <p className="text-muted text-sm">
         <span className="num text-fg">{trades.length}</span> trades · net <Pnl value={net} />
         {trades.some((t) => dayKey(t.opened_at) === today) && <span> · includes today</span>}
       </p>
       {slice.length ? (
         <TradeTable trades={slice} accountLabel={accountLabel} />
       ) : (
-        <EmptyState title="No trades found" body={all.length ? "Try a different search or clear the filters." : "Trades will appear here once they are logged."} />
+        <EmptyState
+          title="No trades found"
+          body={
+            all.length
+              ? "Try a different search or clear the filters."
+              : "Trades will appear here once they are logged."
+          }
+        />
       )}
       <Pagination page={current} pages={pages} basePath="/journal" params={flat} />
       <RiskNote />

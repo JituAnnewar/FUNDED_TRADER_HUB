@@ -7,9 +7,9 @@ Read in this order when resuming: `PROGRESS.md` → `DECISIONS.md` → `docs/BRI
 
 ## Stack
 - Next.js App Router, TypeScript strict, React Server Components by default
-- Tailwind CSS v4 (tokens in `app/globals.css` via `@theme`), shadcn-style primitives in `components/ui`, lucide-react
-- Motion (`motion/react`), Lenis (off under reduced motion)
-- three.js / @react-three/fiber / drei / postprocessing (Phase 4)
+- Tailwind CSS v4 (tokens in `app/globals.css` via `@theme`, fonts Sora / Inter / JetBrains Mono), shadcn-style primitives in `components/ui`, lucide-react
+- CSS animations (transform/opacity only) + IntersectionObserver; Lenis on fine pointers (off under reduced motion)
+- three.js / @react-three/fiber / drei: home globe (`components/three/globe-scene.tsx`), payout coin. Loaded on first interaction via `components/three/lazy-canvas.tsx`
 - lightweight-charts + custom SVG charts (Phase 5)
 - Supabase via `@supabase/ssr`, Server Actions for writes (Phase 2+)
 - react-hook-form + zod, date-fns + date-fns-tz (store UTC, show Asia/Kolkata)
@@ -46,7 +46,8 @@ tests/unit, tests/e2e
 
 ## Conventions
 - Numbers: always `font-mono tabular-nums` (`.num` utility). P&L uses `formatPnl` from `lib/format.ts`: "+" green / "−" (U+2212) red, never colour alone.
-- Colours only via tokens: `bg`, `surface`, `elevated`, `line`, `profit`, `loss`, `accent`, `gold`, `muted`.
+- Colours only via tokens: `bg`, `surface`, `elevated`, `line`, `profit`, `loss`, `accent` (cyan), `violet`, `violet-soft`, `gold` (payouts), `muted`. White text on gradients uses `--grad-button`.
+- Animate only `transform` and `opacity` (Lighthouse flags anything else as non-composited).
 - Every P&L section ends with `<RiskNote />`.
 - All times stored UTC; display with `lib/time.ts` helpers (IST).
 - No `any`. Shared zod schemas in `lib/validation`.

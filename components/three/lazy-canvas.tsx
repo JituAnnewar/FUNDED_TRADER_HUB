@@ -2,8 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import type { IntroClock, LabelMap } from "./globe-scene";
 
-const HeroScene = dynamic(() => import("./hero-scene"), { ssr: false });
+const GlobeScene = dynamic(() => import("./globe-scene"), { ssr: false });
 const CoinScene = dynamic(() => import("./coin-scene"), { ssr: false });
 
 /**
@@ -21,17 +22,15 @@ function useSceneGate() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let webgl = false;
-    try {
-      const c = document.createElement("canvas");
-      webgl = Boolean(c.getContext("webgl2") ?? c.getContext("webgl"));
-    } catch {
-      webgl = false;
-    }
-    if (reduce || !webgl) return;
+    // Cheap capability check only: creating a test WebGL context can cost hundreds of ms
+    // (software GL). If the real context fails, the Canvas renders nothing and the poster stays.
+    if (reduce || typeof WebGLRenderingContext === "undefined") return;
     const nav = navigator as Navigator & { deviceMemory?: number };
-    const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const low = coarse || window.matchMedia("(max-width: 767px)").matches || (nav.deviceMemory ?? 8) <= 4 || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const low =
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches ||
+      (nav.deviceMemory ?? 8) <= 4 ||
+      (navigator.hardwareConcurrency ?? 8) <= 4;
     let done = false;
     const start = () => {
       if (done) return;
@@ -40,24 +39,14 @@ function useSceneGate() {
       setLowPower(low);
       setEnabled(true);
     };
-    const events = ["pointerdown", "touchstart", "keydown", "wheel"] as const;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let idleId: number | undefined;
+    // The 3D bundle (three.js, ~900 kB) loads on the visitor's first sign of life: a mouse move,
+    // touch, scroll or key press. It never competes with page load, and the animated CSS poster
+    // plays until then. Real visitors trigger this within moments of arriving.
+    const events = ["pointermove", "pointerdown", "touchstart", "keydown", "wheel", "scroll"] as const;
     function cleanup() {
       events.forEach((e) => window.removeEventListener(e, start));
-      if (timer) clearTimeout(timer);
-      if (idleId !== undefined && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
     }
-    if (low) {
-      // Phones / low-power devices: the 3D bundle waits for the first interaction or 6 s after load,
-      // so it never competes with first paint and interactivity. The static poster shows meanwhile.
-      events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
-      timer = setTimeout(start, 6000);
-    } else if ("requestIdleCallback" in window) {
-      idleId = window.requestIdleCallback(start, { timeout: 1500 });
-    } else {
-      timer = setTimeout(start, 600);
-    }
+    events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
     return cleanup;
   }, []);
 
@@ -81,13 +70,32 @@ function useSceneGate() {
   return { ref, enabled, active, lowPower };
 }
 
-export function HeroCanvas({ className }: { className?: string }) {
+export function GlobeCanvas({
+  className,
+  openIds,
+  intro,
+  labels,
+  onReady,
+}: {
+  className?: string;
+  openIds: string[];
+  intro: IntroClock;
+  labels?: LabelMap;
+  onReady?: () => void;
+}) {
   const { ref, enabled, active, lowPower } = useSceneGate();
   return (
     <div ref={ref} className={className}>
       {enabled && (
-        <div className="absolute inset-0 animate-[fade-in_1.2s_ease-out_both]">
-          <HeroScene active={active} lowPower={lowPower} />
+        <div className="absolute inset-0 animate-[fade-in_1s_ease-out_both]">
+          <GlobeScene
+            active={active}
+            lowPower={lowPower}
+            openIds={openIds}
+            intro={intro}
+            labels={labels}
+            onReady={onReady}
+          />
         </div>
       )}
     </div>

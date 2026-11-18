@@ -60,16 +60,17 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/payouts", label: "Payouts" },
   { href: "/journal", label: "Journal" },
   { href: "/strategies", label: "Strategies" },
-  { href: "/tools", label: "Tools" },
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
+  { href: "/tools", label: "Tools" },
   { href: "/firms", label: "Firms" },
   { href: "/toolkit", label: "Toolkit" },
   { href: "/insights", label: "Insights" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
+
+export const CONTACT_NAV: NavItem = { href: "/contact", label: "Contact" };
 
 export const LEGAL_NAV: NavItem[] = [
   { href: "/disclaimer", label: "Disclaimer" },

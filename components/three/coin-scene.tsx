@@ -13,7 +13,7 @@ function Coin({ spin }: { spin: boolean }) {
     if (spin) ref.current.rotation.y += dt * 0.7;
     ref.current.position.y = Math.sin(clock.elapsedTime * 1.2) * 0.06;
   });
-  const gold = { color: "#F5C451", metalness: 1, roughness: 0.22 } as const;
+  const gold = { color: "#FBBF24", metalness: 1, roughness: 0.22 } as const;
   const star = [0, 1, 2, 3, 4];
   return (
     <group ref={ref} rotation={[0.25, 0, 0]}>
@@ -45,13 +45,19 @@ function Coin({ spin }: { spin: boolean }) {
 
 export default function CoinScene({ active, spin }: { active: boolean; spin: boolean }) {
   return (
-    <Canvas frameloop={active ? "always" : "never"} dpr={[1, 1.5]} camera={{ position: [0, 0, 4.4], fov: 40 }} gl={{ alpha: true }} aria-hidden="true">
+    <Canvas
+      frameloop={active ? "always" : "never"}
+      dpr={[1, 1.5]}
+      camera={{ position: [0, 0, 4.4], fov: 40 }}
+      gl={{ alpha: true }}
+      aria-hidden="true"
+    >
       <ambientLight intensity={0.3} />
       <directionalLight position={[3, 4, 5]} intensity={2.2} />
       <Environment resolution={128}>
         <Lightformer intensity={3} position={[0, 3, 3]} scale={[6, 1, 1]} color="#ffffff" />
-        <Lightformer intensity={2} position={[-4, 0, 2]} scale={[1, 6, 1]} color="#29D4FF" />
-        <Lightformer intensity={2} position={[4, -1, 2]} scale={[1, 6, 1]} color="#F5C451" />
+        <Lightformer intensity={2} position={[-4, 0, 2]} scale={[1, 6, 1]} color="#7C5CFF" />
+        <Lightformer intensity={2} position={[4, -1, 2]} scale={[1, 6, 1]} color="#FBBF24" />
         <Lightformer intensity={1} position={[0, -3, -3]} scale={[8, 1, 1]} color="#ffffff" />
       </Environment>
       <Coin spin={spin} />

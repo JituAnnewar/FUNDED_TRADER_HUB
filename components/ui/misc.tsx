@@ -10,24 +10,37 @@ export function StatTile({
   children,
   sub,
   className,
+  big = false,
 }: {
   label: string;
   children: React.ReactNode;
   sub?: React.ReactNode;
   className?: string;
+  /** Headline number: larger type and more padding. */
+  big?: boolean;
 }) {
   return (
-    <GlassPanel className={cn("flex flex-col gap-1.5 p-4 sm:p-5", className)}>
-      <span className="text-[11px] font-medium tracking-[0.16em] text-muted uppercase">{label}</span>
-      <span className="text-xl font-semibold sm:text-2xl">{children}</span>
-      {sub && <span className="text-xs text-muted">{sub}</span>}
+    <GlassPanel
+      className={cn("spotlight flex flex-col gap-1.5", big ? "p-5 sm:p-6" : "p-4 sm:p-5", className)}
+      data-spotlight
+    >
+      <span className="text-muted text-[11px] font-medium tracking-[0.18em] uppercase">{label}</span>
+      <span
+        className={cn(
+          "font-semibold whitespace-nowrap",
+          big ? "text-2xl lg:text-[1.75rem] xl:text-3xl" : "text-xl sm:text-2xl",
+        )}
+      >
+        {children}
+      </span>
+      {sub && <span className="text-muted text-xs">{sub}</span>}
     </GlassPanel>
   );
 }
 
 const PHASE_STYLE: Record<AccountPhase, string> = {
-  challenge_phase_1: "border-accent/30 bg-accent/10 text-accent",
-  challenge_phase_2: "border-accent/30 bg-accent/10 text-accent",
+  challenge_phase_1: "border-violet-soft/30 bg-violet/15 text-violet-soft",
+  challenge_phase_2: "border-violet-soft/30 bg-violet/15 text-violet-soft",
   funded: "border-profit/30 bg-profit/10 text-profit",
   passed: "border-profit/30 bg-profit/10 text-profit",
   payout_pending: "border-gold/30 bg-gold/10 text-gold",
@@ -50,7 +63,13 @@ export function PhaseBadge({ phase, className }: { phase: AccountPhase; classNam
   );
 }
 
-export function Tag({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "loss" | "accent" | "gold" }) {
+export function Tag({
+  children,
+  tone = "default",
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "loss" | "accent" | "gold";
+}) {
   return (
     <span
       className={cn(
@@ -58,7 +77,7 @@ export function Tag({ children, tone = "default" }: { children: React.ReactNode;
         tone === "loss" && "border-loss/25 bg-loss/10 text-loss",
         tone === "accent" && "border-accent/25 bg-accent/10 text-accent",
         tone === "gold" && "border-gold/25 bg-gold/10 text-gold",
-        tone === "default" && "border-line bg-white/[0.03] text-muted",
+        tone === "default" && "border-line text-muted bg-white/[0.03]",
       )}
     >
       {children}
@@ -114,11 +133,14 @@ export function BreachMeter({
         aria-valuemax={100}
         aria-valuenow={Math.round(w)}
       >
-        <div className={cn("h-full rounded-full transition-[width] duration-700", LEVEL_BAR[level])} style={{ width: `${w}%` }} />
+        <div
+          className={cn("h-full rounded-full transition-[width] duration-700", LEVEL_BAR[level])}
+          style={{ width: `${w}%` }}
+        />
         <span className="absolute inset-y-0 left-1/2 w-px bg-white/20" aria-hidden="true" />
         <span className="absolute inset-y-0 left-[80%] w-px bg-white/20" aria-hidden="true" />
       </div>
-      <div className="mt-1 text-[11px] text-muted">{detail}</div>
+      <div className="text-muted mt-1 text-[11px]">{detail}</div>
     </div>
   );
 }
@@ -143,7 +165,12 @@ export function RadialGauge({
   const c = 2 * Math.PI * r;
   const p = Math.min(100, Math.max(0, pct));
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} role="img" aria-label={`${label}: ${p.toFixed(0)}%`}>
+    <div
+      className="relative grid shrink-0 place-items-center"
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label={`${label}: ${p.toFixed(0)}%`}
+    >
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(255 255 255 / 0.06)" strokeWidth={stroke} />
         <circle
@@ -176,13 +203,13 @@ export function EmptyState({
 }) {
   return (
     <GlassPanel className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-      <span className="grid size-11 place-items-center rounded-xl border border-line bg-white/[0.03] text-muted">
+      <span className="border-line text-muted grid size-11 place-items-center rounded-xl border bg-white/[0.03]">
         <Inbox className="size-5" aria-hidden="true" />
       </span>
       <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="max-w-md text-sm leading-relaxed text-muted">{body}</p>
+      <p className="text-muted max-w-md text-sm leading-relaxed">{body}</p>
       {action && (
-        <Link href={action.href} className="mt-1 text-sm text-accent underline-offset-4 hover:underline">
+        <Link href={action.href} className="text-accent mt-1 text-sm underline-offset-4 hover:underline">
           {action.label}
         </Link>
       )}
@@ -206,11 +233,17 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section id={id} aria-labelledby={id ? `${id}-title` : undefined} className={cn("mx-auto max-w-7xl px-4 py-12 sm:px-6", className)}>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <section
+      id={id}
+      aria-labelledby={id ? `${id}-title` : undefined}
+      className={cn("mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20", className)}
+    >
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
         <div>
-          {eyebrow && <p className="mb-2 text-[11px] font-medium tracking-[0.25em] text-accent uppercase">{eyebrow}</p>}
-          <h2 id={id ? `${id}-title` : undefined} className="text-2xl font-semibold sm:text-3xl">
+          {eyebrow && (
+            <p className="text-violet-soft mb-3 text-[11px] font-medium tracking-[0.3em] uppercase">{eyebrow}</p>
+          )}
+          <h2 id={id ? `${id}-title` : undefined} className="text-3xl font-semibold text-balance sm:text-4xl">
             {title}
           </h2>
         </div>
