@@ -33,9 +33,9 @@ Full brief: `docs/BRIEF.md`.
 - **Supabase not connected yet.** The live site runs in preview mode (generated demo data). RLS, Realtime, uploads, admin login and the quick-add e2e test can only be verified once a project exists (SETUP.md has the exact SQL checks).
 - **Lighthouse:** could not run locally (Chrome cannot be spawned in this environment). PageSpeed Insights results for the live URL are recorded below when available.
 - **Sessions globe** (optional 3D widget, brief §3.1.4): not built; the live sessions pill covers the need.
-- **Generated DB types:**  is hand-written; run  after linking a project if the schema changes.
+- **Generated DB types:** `lib/types.ts` is hand-written; run `supabase gen types typescript` after linking a project if the schema changes.
 - **Screenshots in README:** add once real data is in.
-- **Playwright quick-add test** is skipped unless  /  are set.
+- **Playwright quick-add test** is skipped unless `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` are set.
 
 ## Notes for the next session
 
