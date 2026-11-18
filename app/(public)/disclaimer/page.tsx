@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/page-header";
 import { Prose } from "@/components/layout/prose";
+import { getSettings } from "@/lib/data/public";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -8,13 +9,14 @@ export const metadata: Metadata = {
   description: "This site is for education and journaling only. It is not financial advice.",
 };
 
-export default function DisclaimerPage() {
+export default async function DisclaimerPage() {
+  const settings = await getSettings();
   return (
     <>
       <PageHeader eyebrow="Legal" title="Disclaimer" />
       <Prose>
         <p>
-          <strong>{SITE.brand}</strong> is a personal trading journal and portfolio. Everything on this site is
+          <strong>{settings.brand_name || SITE.brand}</strong> is a personal trading journal and portfolio. Everything on this site is
           published for education and journaling purposes only.
         </p>
 
@@ -55,6 +57,12 @@ export default function DisclaimerPage() {
           Some links in the toolkit are affiliate links and are labelled as such. I may earn a commission if you
           sign up through them, at no extra cost to you.
         </p>
+        {settings.disclaimer_text && (
+          <>
+            <h2>Additional notes</h2>
+            <p className="whitespace-pre-line">{settings.disclaimer_text}</p>
+          </>
+        )}
       </Prose>
     </>
   );

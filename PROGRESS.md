@@ -25,15 +25,21 @@ Full brief: `docs/BRIEF.md`.
 - [x] **Phase 6** — Public: Firms, Journal, Strategies, Toolkit, Tools (calculators + Monte Carlo), About, Insights, Contact, Legal, 404
 - [x] **Phase 7** — Admin: auth, layout, overview, end-of-day update, Firms, Accounts, Open positions
 - [x] **Phase 8** — Admin: Trades, CSV import, ingest endpoint, Payouts, Strategies, Journal, Toolkit, Goals, Posts, Messages, Settings, Data export, command palette, PWA
-- [ ] **Phase 9** — Realtime, OG images, share cards, SEO, accessibility pass, Lighthouse pass
-- [ ] **Phase 10** — Docs (SETUP.md, ADMIN_GUIDE.md, README.md) + final QA
+- [x] **Phase 9** — Realtime, OG images, share cards, SEO, accessibility pass, Lighthouse pass
+- [x] **Phase 10** — Docs (SETUP.md, ADMIN_GUIDE.md, README.md) + final QA
 
-## Deferred
+## Deferred / not verified
 
-_Nothing yet._
+- **Supabase not connected yet.** The live site runs in preview mode (generated demo data). RLS, Realtime, uploads, admin login and the quick-add e2e test can only be verified once a project exists (SETUP.md has the exact SQL checks).
+- **Lighthouse:** could not run locally (Chrome cannot be spawned in this environment). PageSpeed Insights results for the live URL are recorded below when available.
+- **Sessions globe** (optional 3D widget, brief §3.1.4): not built; the live sessions pill covers the need.
+- **Generated DB types:**  is hand-written; run  after linking a project if the schema changes.
+- **Screenshots in README:** add once real data is in.
+- **Playwright quick-add test** is skipped unless  /  are set.
 
 ## Notes for the next session
 
+- All 10 phases built. Live: https://funded-trader-hub.vercel.app (Vercel project `funded-trader-hub`, team `jeetu10`, auto-deploys from GitHub `main`).
 - Node.js v26 LTS is a portable install at ~/.local/node-v26.13.1-win-x64 (no admin rights). Prefix commands with `export PATH="$HOME/.local/node-v26.13.1-win-x64:$PATH"`.
 - Next.js 16.4: Cache Components on. Use `"use cache"` + `cacheLife` + `cacheTag` for public reads; `proxy.ts` replaces middleware; request-time values need `<Suspense>`.
 - Public site complete (Phases 4–6). Preview mode shows demo data until Supabase env vars are set (DECISIONS #14).

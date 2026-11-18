@@ -50,7 +50,7 @@ export default async function PayoutsPage() {
               {payouts.length} payout{payouts.length === 1 ? "" : "s"} from {byFirm.length} firm{byFirm.length === 1 ? "" : "s"}
             </p>
             <div className="mt-6">
-              <ShareButton title={`${formatMoney(total)} in prop firm payouts`} path="/payouts" imagePath="/payouts/opengraph-image" />
+              <ShareButton title={`${formatMoney(total)} in prop firm payouts`} path="/payouts" imagePath="/payouts/share" />
             </div>
           </div>
           <div className="relative mx-auto aspect-square w-64 md:w-full">

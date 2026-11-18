@@ -6,12 +6,22 @@ import { TickerTape } from "@/components/layout/ticker-tape";
 import { Experience } from "@/components/motion/experience";
 import { Loader } from "@/components/motion/loader";
 import { getFirms, getPayouts, getSettings, getTrades, hasDemoData } from "@/lib/data/public";
+import { SITE, socialLinks } from "@/lib/site";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const [settings, demo, trades, payouts, firms] = await Promise.all([getSettings(), hasDemoData(), getTrades(), getPayouts(), getFirms()]);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", name: settings.brand_name, url: SITE.url, description: settings.seo_description ?? SITE.description },
+      { "@type": "Person", name: settings.trader_name, url: SITE.url, jobTitle: "Prop firm trader", sameAs: socialLinks(settings.socials).map((x) => x.url) },
+    ],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <Loader brand={settings.brand_name} />
       <Experience />
       {demo && (

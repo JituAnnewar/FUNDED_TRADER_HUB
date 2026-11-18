@@ -10,6 +10,7 @@ import { TodayPanel } from "@/components/performance/today-panel";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { EmptyState, StatTile } from "@/components/ui/misc";
 import { Pnl, RValue } from "@/components/ui/pnl";
+import Link from "next/link";
 import { dayKey } from "@/lib/analytics/dates";
 import { filterTrades, parseFilters, type SearchParams } from "@/lib/analytics/filter";
 import {
@@ -26,6 +27,7 @@ import {
   streaks,
   summarize,
 } from "@/lib/analytics/trades";
+import { activeMonths, monthLabel } from "@/lib/analytics/recap";
 import { getPortfolio } from "@/lib/data/portfolio";
 import { getJournalEntries, getStrategies } from "@/lib/data/public";
 import { formatMoney, formatPct } from "@/lib/format";
@@ -254,6 +256,22 @@ async function PerformanceContent({ searchParams }: { searchParams: Promise<Sear
           </div>
           <RiskNote />
         </>
+      )}
+      {activeMonths(all, portfolio.payouts).length > 0 && (
+        <GlassPanel className="p-5">
+          <h2 className="mb-3 font-semibold">Monthly recaps</h2>
+          <ul className="flex flex-wrap gap-2">
+            {activeMonths(all, portfolio.payouts)
+              .slice(0, 12)
+              .map((m) => (
+                <li key={m}>
+                  <Link href={`/recap/${m}`} className="block rounded-lg border border-line px-3 py-1.5 text-sm hover:border-accent hover:text-accent">
+                    {monthLabel(m)}
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </GlassPanel>
       )}
     </div>
   );
