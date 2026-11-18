@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+/* ───────────────────────── Design tokens ───────────────────────── */
+:root {
+  --c-bg: #05070a;
+  --c-surface: #0b1016;
+  --c-elevated: #111823;
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-line-strong: rgba(255, 255, 255, 0.16);
+  --c-text: #e8edf4;
+  --c-muted: #8a96a8;
+  --c-profit: #16f2a0;
+  --c-loss: #ff3d6e;
+  --c-accent: #29d4ff;
+  --c-gold: #f5c451;
+  --c-amber: #ffb547;
+
+  --nav-h: 4rem;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-elevated: var(--c-elevated);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-fg: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-profit: var(--c-profit);
+  --color-loss: var(--c-loss);
+  --color-accent: var(--c-accent);
+  --color-gold: var(--c-gold);
+  --color-amber: var(--c-amber);
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+/* ───────────────────────── Base ───────────────────────── */
+@layer base {
+  html {
+    background: var(--c-bg);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100dvh;
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--c-accent) 35%, transparent);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+/* ───────────────────────── Utilities ───────────────────────── */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+@utility glass {
+  position: relative;
+  background: linear-gradient(180deg, rgb(17 24 35 / 0.72), rgb(11 16 22 / 0.6));
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 1rem;
+  /* 1px gradient border */
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 20px 40px -24px rgb(0 0 0 / 0.8);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      140deg,
+      rgb(255 255 255 / 0.18),
+      rgb(255 255 255 / 0.04) 35%,
+      rgb(41 212 255 / 0.12) 70%,
+      rgb(255 255 255 / 0.06)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility glow-profit {
+  text-shadow: 0 0 18px rgb(22 242 160 / 0.45);
+}
+@utility glow-loss {
+  text-shadow: 0 0 18px rgb(255 61 110 / 0.45);
+}
+@utility glow-accent {
+  text-shadow: 0 0 18px rgb(41 212 255 / 0.45);
+}
+@utility glow-gold {
+  text-shadow: 0 0 22px rgb(245 196 81 / 0.5);
+}
+
+@utility text-gradient {
+  background: linear-gradient(100deg, #fff 0%, #cfe9ff 40%, var(--c-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Faint terminal grid + vignette behind every page */
+.bg-terminal {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(41 212 255 / 0.1), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgb(22 242 160 / 0.05), transparent 70%),
+    linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    48px 48px,
+    48px 48px;
+  background-position: center top;
+}
+.bg-terminal::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.012) 0px,
+    rgb(255 255 255 / 0.012) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ───────────────────────── Keyframes ───────────────────────── */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 4px transparent;
+    opacity: 0.6;
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* ───────────────────────── Loader ─────────────────────────
+   Pure CSS so it never waits for JS. An inline script in <head> sets
+   html[data-seen] on repeat visits, which hides it before first paint. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--c-bg);
+  pointer-events: none;
+  animation: loader-out 0.3s ease-in 0.9s forwards;
+}
+html[data-seen] .loader {
+  display: none;
+}
+.loader__wick {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: draw 0.35s ease-out 0.05s forwards;
+}
+.loader__body {
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+  animation: grow 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.25s forwards;
+}
+.loader__mark {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: mark-in 0.3s ease-out 0.55s forwards;
+}
+.loader__candle {
+  animation: candle-shrink 0.3s ease-in 0.55s forwards;
+  transform-origin: 50% 50%;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes grow {
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes candle-shrink {
+  to {
+    transform: scale(0.55) translateY(-14px);
+  }
+}
+@keyframes mark-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes loader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ───────────────────────── Reduced motion ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
